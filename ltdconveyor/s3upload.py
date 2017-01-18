@@ -11,6 +11,8 @@ import mimetypes
 
 import boto3
 
+from .exceptions import S3Error
+
 
 __all__ = ['upload_dir', 'upload_file', 'upload_object', 'ObjectManager']
 
@@ -360,8 +362,3 @@ class ObjectManager(object):
         log.debug(r)
         if 'Errors' in r:
             raise S3Error('S3 could not delete {0}'.format(key))
-
-
-class S3Error(Exception):
-    """General errors in S3 API usage."""
-    pass
