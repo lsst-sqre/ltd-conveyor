@@ -21,7 +21,8 @@ __all__ = ['delete_dir']
 
 
 def delete_dir(bucket_name, root_path,
-               aws_access_key_id, aws_secret_access_key):
+               aws_access_key_id=None, aws_secret_access_key=None,
+               aws_profile=None):
     """Delete all objects in the S3 bucket named `bucket_name` that are
     found in the `root_path` directory.
 
@@ -35,6 +36,10 @@ def delete_dir(bucket_name, root_path,
         The access key for your AWS account. Also set `aws_secret_access_key`.
     aws_secret_access_key : str
         The secret key for your AWS account.
+    aws_profile : str, optional
+        Name of AWS profile in :file:`~/.aws/credentials`. Use this instead
+        of ``aws_access_key_id`` and ``aws_secret_access_key`` for file-based
+        credentials.
 
     Raises
     ------
@@ -43,7 +48,8 @@ def delete_dir(bucket_name, root_path,
     """
     session = boto3.session.Session(
         aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key)
+        aws_secret_access_key=aws_secret_access_key,
+        profile_name=aws_profile)
     s3 = session.resource('s3')
     bucket = s3.Bucket(bucket_name)
 

@@ -47,8 +47,8 @@ def test_delete_dir(request):
         print("Cleaning up the bucket")
         delete_dir(os.getenv('LTD_TEST_BUCKET'),
                    bucket_root,
-                   os.getenv('LTD_TEST_AWS_ID'),
-                   os.getenv('LTD_TEST_AWS_SECRET'))
+                   aws_access_key_id=os.getenv('LTD_TEST_AWS_ID'),
+                   aws_secret_access_key=os.getenv('LTD_TEST_AWS_SECRET'))
     request.addfinalizer(cleanup)
 
     file_paths = ['a/test1.txt', 'a/b/test2.txt', 'a/b/c/test3.txt']
@@ -58,8 +58,8 @@ def test_delete_dir(request):
     # Delete b/*
     delete_dir(os.getenv('LTD_TEST_BUCKET'),
                bucket_root + 'a/b/',
-               os.getenv('LTD_TEST_AWS_ID'),
-               os.getenv('LTD_TEST_AWS_SECRET'))
+               aws_access_key_id=os.getenv('LTD_TEST_AWS_ID'),
+               aws_secret_access_key=os.getenv('LTD_TEST_AWS_SECRET'))
 
     # Ensure paths outside of that are still available, but paths in b/ are
     # deleted

@@ -21,7 +21,8 @@ __all__ = ['copy_dir']
 
 
 def copy_dir(bucket_name, src_path, dest_path,
-             aws_access_key_id, aws_secret_access_key,
+             aws_access_key_id=None, aws_secret_access_key=None,
+             aws_profile=None,
              surrogate_key=None, cache_control=None,
              surrogate_control=None,
              create_directory_redirect_object=True):
@@ -49,6 +50,10 @@ def copy_dir(bucket_name, src_path, dest_path,
         The access key for your AWS account. Also set `aws_secret_access_key`.
     aws_secret_access_key : str
         The secret key for your AWS account.
+    aws_profile : str, optional
+        Name of AWS profile in :file:`~/.aws/credentials`. Use this instead
+        of ``aws_access_key_id`` and ``aws_secret_access_key`` for file-based
+        credentials.
     surrogate_key : str, optional
         The surrogate key to insert in the header of all objects in the
         ``x-amz-meta-surrogate-key`` field. This key is used to purge
@@ -95,7 +100,8 @@ def copy_dir(bucket_name, src_path, dest_path,
 
     session = boto3.session.Session(
         aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key)
+        aws_secret_access_key=aws_secret_access_key,
+        profile_name=aws_profile)
     s3 = session.resource('s3')
     bucket = s3.Bucket(bucket_name)
 

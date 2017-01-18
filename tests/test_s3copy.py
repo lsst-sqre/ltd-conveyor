@@ -47,8 +47,8 @@ def test_copy_directory(request):
         print("Cleaning up the bucket")
         delete_dir(os.getenv('LTD_TEST_BUCKET'),
                    bucket_root,
-                   os.getenv('LTD_TEST_AWS_ID'),
-                   os.getenv('LTD_TEST_AWS_SECRET'))
+                   aws_access_key_id=os.getenv('LTD_TEST_AWS_ID'),
+                   aws_secret_access_key=os.getenv('LTD_TEST_AWS_SECRET'))
     request.addfinalizer(cleanup)
 
     initial_paths = ['test1.txt', 'test2.txt', 'aa/test3.txt']
@@ -95,7 +95,9 @@ def test_copy_dir_src_in_dest():
     destination.
     """
     with pytest.raises(AssertionError):
-        copy_dir('example', 'dest/src', 'dest', 'id', 'key')
+        copy_dir('example', 'dest/src', 'dest',
+                 aws_access_key_id='id',
+                 aws_secret_access_key='key')
 
 
 def test_copy_dir_dest_in_src():
@@ -103,4 +105,6 @@ def test_copy_dir_dest_in_src():
     is part of the source.
     """
     with pytest.raises(AssertionError):
-        copy_dir('example', 'src', 'src/dest', 'id', 'key')
+        copy_dir('example', 'src', 'src/dest',
+                 aws_access_key_id='id',
+                 aws_secret_access_key='key')
