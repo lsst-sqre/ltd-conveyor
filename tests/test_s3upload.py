@@ -91,7 +91,7 @@ def test_upload_dir(request):
                temp_dir,
                surrogate_key=surrogate_key,
                upload_dir_redirect_objects=True,
-               cache_control_max_age=cache_control_max_age,
+               cache_control='max-age={0:d}'.format(cache_control_max_age),
                **aws_credentials)
 
     _test_objects_exist(session, bucket_name, temp_bucket_dir, paths)

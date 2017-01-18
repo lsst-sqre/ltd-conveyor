@@ -24,22 +24,17 @@ log.addHandler(logging.NullHandler())
 
 def upload_dir(bucket_name, path_prefix, source_dir,
                upload_dir_redirect_objects=True,
-               surrogate_key=None, acl='public-read',
-               cache_control_max_age=31536000,
+               surrogate_key=None,
+               surrogate_control=None, cache_control=None,
+               acl='public-read',
                aws_access_key_id=None, aws_secret_access_key=None,
                aws_profile=None):
-    """Upload built documentation to S3.
+    """Upload a directory of files to S3.
 
     This function places the contents of the Sphinx HTML build directory
     into the ``/path_prefix/`` directory of an *existing* S3 bucket.
     Existing files on S3 are overwritten; files that no longer exist in the
     ``source_dir`` are deleted from S3.
-
-    S3 credentials are assumed to be stored in a place where boto3 can read
-    them, such as :file:`~/.aws/credentials`. `aws_profile_name` allows you
-    to select while AWS credential profile you wish to use from the
-    :file:`~/.aws/credentials`.
-    See http://boto3.readthedocs.org/en/latest/guide/quickstart.html.
 
     Parameters
     ----------
@@ -61,6 +56,16 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         in the ``x-amz-meta-surrogate-key`` field. This key is used to purge
         builds from the Fastly CDN when Editions change.
         If `None` then no header will be set.
+    cache_control : str, optional
+        This sets the ``Cache-Control`` header on the uploaded
+        files. The ``Cache-Control`` header specifically dictates how content
+        is cached by the browser (if ``surrogate_control`` is also set).
+    surrogate_control : str, optional
+        This sets the ``x-amz-meta-surrogate-control`` header
+        on the uploaded files. The ``Surrogate-Control``
+        or ``x-amz-meta-surrogate-control`` header is used in priority by
+        Fastly to givern it's caching. This caching policy is *not* passed
+        to the browser.
     acl : str, optional
         The pre-canned AWS access control list to apply to this upload.
         Defaults to ``'public-read'``, which allow files to be downloaded
@@ -68,8 +73,6 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
         for an overview of S3's pre-canned ACL lists. Note that ACL settings
         are not validated locally.
-    cache_control_max_age : int, optional
-        Defaults to 31536000 seconds = 1 year.
     aws_access_key_id : str, optional
         The access key for your AWS account. Also set `aws_secret_access_key`.
     aws_secret_access_key : str, optional
@@ -78,6 +81,28 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         Name of AWS profile in :file:`~/.aws/credentials`. Use this instead
         of `aws_access_key_id` and `aws_secret_access_key` for file-based
         credentials.
+
+    Notes
+    -----
+    ``cache_control`` and  ``surrogate_control`` can be used together.
+    ``surrogate_control`` takes priority in setting Fastly's POP caching,
+    while ``cache_control`` then sets the browser's caching. For example:
+
+    - ``cache_control='no-cache'``
+    - ``surrogate_control='max-age=31536000'
+
+    together will ensure that the browser always does an ETAG server query,
+    but that Fastly will cache the content for one year (or until purged).
+    This configuration is good for files that are frequently changed in place.
+
+    For immutable uploads simply using ``cache_control`` is more efficient
+    since it allows the browser to also locally cache content.
+
+    .. seelso:
+
+       - `Fastly: Cache control tutorial
+         <https://docs.fastly.com/guides/tutorials/cache-control-tutorial>`_.
+       - `Google: HTTP caching <http://ls.st/39v>`_.
     """
     log.debug('s3upload.upload({0}, {1}, {2})'.format(
         bucket_name, path_prefix, source_dir))
@@ -94,11 +119,10 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         if metadata is None:
             metadata = {}
         metadata['surrogate-key'] = surrogate_key
-
-    if cache_control_max_age is not None:
-        cache_control = 'max-age={0:d}'.format(cache_control_max_age)
-    else:
-        cache_control = None
+    if surrogate_control is not None:
+        if metadata is None:
+            metadata = {}
+        metadata['surrogate-control'] = surrogate_control
 
     manager = ObjectManager(session, bucket_name, path_prefix)
 
@@ -220,11 +244,19 @@ def upload_object(bucket_path, bucket, content='',
         The cache-control header value. For example, 'max-age=31536000'.
         ``'
     """
+    print('cache_control', cache_control)
     obj = bucket.Object(bucket_path)
-    obj.put(Body=content,
-            ACL=acl,
-            Metadata=metadata,
-            CacheControl=cache_control)
+
+    # Object.put seems to be sensitive to None-type kwargs, so we filter first
+    args = {}
+    if metadata is not None:
+        args['Metadata'] = metadata
+    if acl is not None:
+        args['ACL'] = acl
+    if cache_control is not None:
+        args['CacheControl'] = cache_control
+
+    obj.put(Body=content, **args)
 
 
 class ObjectManager(object):
