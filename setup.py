@@ -42,7 +42,8 @@ setup(
     keywords='lsst',
     packages=find_packages(exclude=['docs', 'tests*', 'data']),
     install_requires=['future>=0.16.0',
-                      'boto3>=1.4.4']
+                      'boto3>=1.4.4',
+                      'backports.tempfile==1.0rc1']
     # package_data={},
     # entry_points={}
 )
