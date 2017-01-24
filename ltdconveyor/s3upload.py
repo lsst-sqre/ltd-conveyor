@@ -38,48 +38,49 @@ def upload_dir(bucket_name, path_prefix, source_dir,
 
     Parameters
     ----------
-    bucket_name : str
+    bucket_name : `str`
         Name of the S3 bucket where documentation is uploaded.
-    path_prefix : str
+    path_prefix : `str`
         The root directory in the bucket where documentation is stored.
-    source_dir : str
+    source_dir : `str`
         Path of the Sphinx HTML build directory on the local file system.
         The contents of this directory are uploaded into the ``/path_prefix/``
         directory of the S3 bucket.
-    upload_dir_redirect_objects : bool, optional
+    upload_dir_redirect_objects : `bool`, optional
         A feature flag to enable uploading objects to S3 for every directory.
         These objects contain headers ``x-amz-meta-dir-redirect=true`` HTTP
         headers that tell Fastly to issue a 301 redirect from the directory
-        object to the '/index.html' in that directory.
-    surrogate_key : str, optional
+        object to the `index.html`` in that directory.
+    surrogate_key : `str`, optional
         The surrogate key to insert in the header of all objects
         in the ``x-amz-meta-surrogate-key`` field. This key is used to purge
         builds from the Fastly CDN when Editions change.
         If `None` then no header will be set.
-    cache_control : str, optional
+    cache_control : `str`, optional
         This sets the ``Cache-Control`` header on the uploaded
         files. The ``Cache-Control`` header specifically dictates how content
         is cached by the browser (if ``surrogate_control`` is also set).
-    surrogate_control : str, optional
+    surrogate_control : `str`, optional
         This sets the ``x-amz-meta-surrogate-control`` header
         on the uploaded files. The ``Surrogate-Control``
         or ``x-amz-meta-surrogate-control`` header is used in priority by
         Fastly to givern it's caching. This caching policy is *not* passed
         to the browser.
-    acl : str, optional
+    acl : `str`, optional
         The pre-canned AWS access control list to apply to this upload.
         Defaults to ``'public-read'``, which allow files to be downloaded
         over HTTP by the public. See
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
         for an overview of S3's pre-canned ACL lists. Note that ACL settings
         are not validated locally.
-    aws_access_key_id : str, optional
-        The access key for your AWS account. Also set `aws_secret_access_key`.
-    aws_secret_access_key : str, optional
+    aws_access_key_id : `str`, optional
+        The access key for your AWS account. Also set
+        ``aws_secret_access_key``.
+    aws_secret_access_key : `str`, optional
         The secret key for your AWS account.
-    aws_profile : str, optional
+    aws_profile : `str`, optional
         Name of AWS profile in :file:`~/.aws/credentials`. Use this instead
-        of `aws_access_key_id` and `aws_secret_access_key` for file-based
+        of ``aws_access_key_id`` and ``aws_secret_access_key`` for file-based
         credentials.
 
     Notes
@@ -89,7 +90,7 @@ def upload_dir(bucket_name, path_prefix, source_dir,
     while ``cache_control`` then sets the browser's caching. For example:
 
     - ``cache_control='no-cache'``
-    - ``surrogate_control='max-age=31536000'
+    - ``surrogate_control='max-age=31536000'``
 
     together will ensure that the browser always does an ETAG server query,
     but that Fastly will cache the content for one year (or until purged).
@@ -183,22 +184,21 @@ def upload_file(local_path, bucket_path, bucket,
 
     Parameters
     ----------
-    local_path : str
+    local_path : `str`
         Full path to a file on the local file system.
-    bucket_path : str
+    bucket_path : `str`
         Destination path (also known as the key name) of the file in the
         S3 bucket.
-    bucket : `boto3` Bucket instance
+    bucket : boto3 Bucket instance
         S3 bucket.
-    metadata : dict, optional
+    metadata : `dict`, optional
         Header metadata values. These keys will appear in headers as
         ``x-amz-meta-*``.
-    acl : str, optional
+    acl : `str`, optional
         A pre-canned access control list. See
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
-    cache_control : str, optional
-        The cache-control header value. For example, 'max-age=31536000'.
-        ``'
+    cache_control : `str`, optional
+        The cache-control header value. For example, ``'max-age=31536000'``.
     """
     extra_args = {}
     if acl is not None:
@@ -227,22 +227,21 @@ def upload_object(bucket_path, bucket, content='',
 
     Parameters
     ----------
-    bucket_path : str
+    bucket_path : `str`
         Destination path (also known as the key name) of the file in the
         S3 bucket.
-    content : str or bytes
-        Object content, optional
-    bucket : `boto3` Bucket instance
+    content : `str` or `bytes`, optional
+        Object content.
+    bucket : boto3 Bucket instance
         S3 bucket.
-    metadata : dict, optional
+    metadata : `dict`, optional
         Header metadata values. These keys will appear in headers as
         ``x-amz-meta-*``.
-    acl : str, optional
+    acl : `str`, optional
         A pre-canned access control list. See
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
-    cache_control : str, optional
-        The cache-control header value. For example, 'max-age=31536000'.
-        ``'
+    cache_control : `str`, optional
+        The cache-control header value. For example, ``'max-age=31536000'``.
     """
     print('cache_control', cache_control)
     obj = bucket.Object(bucket_path)
@@ -269,9 +268,9 @@ class ObjectManager(object):
     ----------
     session : :class:`boto3.session.Session`
         A boto3 session instance provisioned with the correct identities.
-    bucket_name : str
+    bucket_name : `str`
         Name of the S3 bucket.
-    bucket_root : str
+    bucket_root : `str`
         The version slug is the name root directory in the bucket where
         documentation is stored.
     """
@@ -292,12 +291,12 @@ class ObjectManager(object):
 
         Parameters
         ----------
-        dirname : str
+        dirname : `str`
             Directory name in the bucket relative to ``bucket_root/``.
 
         Returns
         -------
-        filenames : list
+        filenames : `list`
             List of file names (`str`), relative to ``bucket_root/``, that
             exist at the root of ``dirname``.
         """
@@ -322,12 +321,12 @@ class ObjectManager(object):
 
         Parameters
         ----------
-        dirname : str
+        dirname : `str`
             Directory name in the bucket relative to ``bucket_root``.
 
         Returns
         -------
-        dirnames : list
+        dirnames : `list`
             List of directory names (`str`), relative to ``bucket_root/``,
             that exist at the root of ``dirname``.
         """
@@ -362,7 +361,7 @@ class ObjectManager(object):
 
         Parameters
         ----------
-        filename : str
+        filename : `str`
             Name of the file, relative to ``bucket_root/``.
         """
         key = os.path.join(self._bucket_root, filename)
@@ -375,7 +374,7 @@ class ObjectManager(object):
 
         Parameters
         ----------
-        dirname : str
+        dirname : `str`
             Name of the directory, relative to ``bucket_root/``.
         """
         key = os.path.join(self._bucket_root, dirname)

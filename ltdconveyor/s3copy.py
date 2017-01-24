@@ -32,46 +32,47 @@ def copy_dir(bucket_name, src_path, dest_path,
     Object metadata is preserved while copying, with the following exceptions:
 
     - If a new surrogate key is provided it will replace the original one.
-    - If cache_control and surrogate_control values are provided they
+    - If ``cache_control`` and ``surrogate_control`` values are provided they
       will replace the old one.
 
     Parameters
     ----------
-    bucket_name : str
+    bucket_name : `str`
         Name of an S3 bucket.
-    src_path : str
-        Source directory in the S3 bucket. The `src_path` should ideally end
+    src_path : `str`
+        Source directory in the S3 bucket. The ``src_path`` should ideally end
         in a trailing `'/'`. E.g. `'dir/dir2/'`.
-    dest_path : str
-        Destination directory in the S3 bucket. The `dest_path` should ideally
-        end in a trailing `'/'`. E.g. `'dir/dir2/'`. The destination path
-        cannot contain the source path.
-    aws_access_key_id : str
-        The access key for your AWS account. Also set `aws_secret_access_key`.
-    aws_secret_access_key : str
+    dest_path : `str`
+        Destination directory in the S3 bucket. The ``dest_path`` should
+        ideally end in a trailing `'/'`. E.g. `'dir/dir2/'`. The destination
+        path cannot contain the source path.
+    aws_access_key_id : `str`
+        The access key for your AWS account. Also set
+        ``aws_secret_access_key``.
+    aws_secret_access_key : `str`
         The secret key for your AWS account.
-    aws_profile : str, optional
+    aws_profile : `str`, optional
         Name of AWS profile in :file:`~/.aws/credentials`. Use this instead
         of ``aws_access_key_id`` and ``aws_secret_access_key`` for file-based
         credentials.
-    surrogate_key : str, optional
+    surrogate_key : `str`, optional
         The surrogate key to insert in the header of all objects in the
         ``x-amz-meta-surrogate-key`` field. This key is used to purge
         builds from the Fastly CDN when Editions change.
         If `None` then no header will be set.
         If the object already has a ``x-amz-meta-surrogate-key`` header then
         it will be replaced.
-    cache_control : str, optional
+    cache_control : `str`, optional
         This sets (and overrides) the ``Cache-Control`` header on the copied
         files. The ``Cache-Control`` header specifically dictates how content
         is cached by the browser (if ``surrogate_control`` is also set).
-    surrogate_control : str, optional
+    surrogate_control : `str`, optional
         This sets (and overrides) the ``x-amz-meta-surrogate-control`` header
         on the copied files. The ``Surrogate-Control``
         or ``x-amz-meta-surrogate-control`` header is used in priority by
         Fastly to givern it's caching. This caching policy is *not* passed
         to the browser.
-    create_directory_redirect_object : bool, optional
+    create_directory_redirect_object : `bool`, optional
         Create a directory redirect object for the root directory. The
         directory redirect object is an empty S3 object named after the
         directory (without a trailing slash) that contains a
@@ -81,7 +82,7 @@ def copy_dir(bucket_name, src_path, dest_path,
 
     Raises
     ------
-    app.exceptions.S3Error
+    ltdconveyor.exceptions.S3Error
         Thrown by any unexpected faults from the S3 API.
     """
     if not src_path.endswith('/'):

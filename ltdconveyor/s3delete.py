@@ -23,27 +23,28 @@ __all__ = ['delete_dir']
 def delete_dir(bucket_name, root_path,
                aws_access_key_id=None, aws_secret_access_key=None,
                aws_profile=None):
-    """Delete all objects in the S3 bucket named `bucket_name` that are
-    found in the `root_path` directory.
+    """Delete all objects in the S3 bucket named ``bucket_name`` that are
+    found in the ``root_path`` directory.
 
     Parameters
     ----------
-    bucket_name : str
+    bucket_name : `str`
         Name of an S3 bucket.
-    root_path : str
+    root_path : `str`
         Directory in the S3 bucket that will be deleted.
-    aws_access_key_id : str
-        The access key for your AWS account. Also set `aws_secret_access_key`.
-    aws_secret_access_key : str
+    aws_access_key_id : `str`
+        The access key for your AWS account. Also set
+        ``aws_secret_access_key``.
+    aws_secret_access_key : `str`
         The secret key for your AWS account.
-    aws_profile : str, optional
+    aws_profile : `str`, optional
         Name of AWS profile in :file:`~/.aws/credentials`. Use this instead
         of ``aws_access_key_id`` and ``aws_secret_access_key`` for file-based
         credentials.
 
     Raises
     ------
-    app.exceptions.S3Error
+    ltdconveyor.exceptions.S3Error
         Thrown by any unexpected faults from the S3 API.
     """
     session = boto3.session.Session(
