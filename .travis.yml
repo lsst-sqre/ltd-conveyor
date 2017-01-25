@@ -1,0 +1,41 @@
+sudo: false
+language: python
+python:
+  - '2.7'
+  - '3.4'
+  - '3.6'
+matrix:
+    include:
+      # This is the ltd-mason documentation deployment build
+      - python: "3.5"
+        env: LTD_MASON_BUILD=true
+install:
+  - pip install -r requirements.txt
+script:
+  - py.test --flake8 --cov=ltdconveyor
+  # automodapi_toctreedirnm is sensitive to being in docs/ dir; will fix in documenteer
+  - cd docs && sphinx-build -b html -a -W -d _build/doctree . _build/html && cd ../
+after_success:
+  - ltd-mason-travis --html-dir docs/_build/html --verbose
+env:
+  global:
+    # PyPI deployment credentials
+    - secure: Xhw5hMO/IEAjDb4v68e44NlZWct+xA3he3Yyq3oJddrxzgZPBzCpi60HkSqQCdxePvut9w/ZTS81eEUnc+7Ym2j+JqSB45Rtepe/CHM1l73tVfMG3GpELCvB6MDSgSvBxpNB+OxLM2yPsXYUIghSEQ0rQIIMoUrTvMVvxpAGNRvFjRSbSGgDUDssLB7oGBvfAWzNfCuW8uU55Youf4CPm9I9gfMro86YatRF0h/yWveomkuojy9lo9siOxi9y4lEdcN5nDoFotddhlmp2B54oaTHvFl/vPOON0uKkTgopCfLv+cplnhWEx7McjZBcc01M/s9k+oRE1UkXpgM5lmf7pfKdaV+YZ7rbw2QudSjx+p2SFnBbCT24GfHY8pCJuwz63rUDPOt2BtH9n4cdjkrhm76AOJy5mF5W2/m5yKU6uktNhzFkkWsa9iIAgYU9FIMweKEwQdtpymAnHaArP1YSOJfM7BYspIp30gAMjs+HKBJiyIRPGHEnqekN/Yt6fnI2L0Zw5n5SREWqtaG1ishim3QEZvrfcczIik1HQo2D4hqc/BszjEkE+70WJ4tdmQJ9bW1MBMtSGFfsETmuvYmC1oreRHs0PRxR4y3W3i2TV+fJPRKqyrQcxiBQvbnkOHyYgCW/wXQHDMJbpNt/qmVRVLSIq2Pz7IdM8CTbUa3jQc=
+    - secure: NTEJa1wL27hu9LrSNELh18Zzfdr5dr76wEYJz+E04gixJ3R3XyaU4B8MAodMvAC8V1du1BhP3pZHYby6ZxnSOhPZvAZL4FbEFkOPs1oS/qgpam8sf5+HYplfNZ+3vKxz0yxPdPE/Ltk1gsVqgOtjXyX4VTaCNtoH++pYAXBxdkjoQ1CwgmT6fIBGliH+Kf6b7z1Br+DDycaslMnlWu0guWNRwPKs/M8VPL3C3wEE6zEbAPtaSDYaB4fLqLwaKrjiOxKsKIlOV8A+BLZMPUmq3jlnrv6f3Ic2PNluiDnOVf1xzKHogt6KX0JBUANYpsE3qVDXMI76Ulv0S+446Pp1hxla3qj8noDPZal0xKG8S94aKEN01+QnktXbezK61/ErI9JCUk9AinjtT6uOk6MjLSjD0sLSwsNjvB3Ba4T4GEa0KI34wbH1PSdJJX5wyXHawxPK3eGwgqOvnUQtJbXGmgbhq4O0UUWbwOg/M7sf2Sb/85wZtwf5Ok134t9Uq0QJFyq+m+Hy8Yo+iKDAVXaok3ZQ7LIdC4EnnuFUOR6Kg3VIVu4zdiuLMmDUfR2pXhlS1+Ac9KGwuDePgBAW9lCKWm9r+AvheXAJ7CJASFSVyXJq+tWXjRutkrvaBpKzx2Z6iw0EWkVVl4bVPAGJozfhrRADNsD9yPZWY4ff3qqn34o=
+    - secure: gEbMsr7aBa7eBZA4vlYi5NxHJYnJHdyTlPCdLLE90+B9i8a6a0J1/U5nhy3GlW4DeufXQjCqzY4tDQNvvHOzsAwYQGtFXCkNptzlpL/dAqScRWq61bl7VO6Zplq3AX2dIlQJdr09rKQKL1QqBcxxOZeNGG32vdA0GuGnRJHxA7rr4M218UY/KPR0u5ijrPVll8QtAPx2vzx1+EoIQ677ppRYE9oDXfeu3c9NvRCR5Lk4Iq8hXBIRLtEZrVtKzoAIf/9SoOCn3gK0/yT4NuOn+EDkJzVSK1bS0GMLnBUR5HY27/uNfugwFgLFlVILzvceRDVTaFbov0+jT2B8gH4LM6M9b0K1Fhd/eaIcgSJ/gcKc+bbvaihoXySXtFmQaCxzo/qqgdY5g4kZamENfxMYeutl2Tanno7qsIsjs2Lz2UTh1mP03zIjCJu8rMMJCgf3Ql++fVtq98Rrgg2ZpLOdrwLB1RtJ7BaXS8ZCDJ4db8xOEFd8rwadClMpK7bCaRb5uLr5LX5jh7rHypGmf+m5kAdBmeyDvdw/zQ/u/8Q44acm+O0IaDMoE453pbAMY7hmt4aKOsQHM1sX5F8X44E9Y8HzQfb1ku/DTAsigPjaqVlxNXEJkqSbv7sZSk6J6tdYbnVwPWThGNiVB7Mw7bS0i3xs+q7+n9DX97lJPU3XAbw=
+    # LTD Keeper / S3 deployment credentials and configs
+    - secure: "AyDcLTZSpBsa4DCbG21TCGnU7opkm/BungRjFaQ2QZ0hV4Ht7yYX45a9qHcTvTZ/8F6isC4jsBD/YCkAB/YYq77WA6/kmoRgEUjw+J3ePsE4zk+shu2b/g+pKyhwcZpOFKb0DD1j11LrQnAtA87NYTWcJIWHup5BOpR/H7JXORUwEorabZLjBAMZ27wK3RCF4O8PdxsQV9yxpOGGJ0TjWK3XSeC82cVu+IYRBwSQ2iyjLWy7e5W5n7clt5P0f/MUAMLZ0AiZkXfer4bOlt7cxTyopCimUVt4YUM4pziu9lJy2iwtc4NYtxdsjxvT3NfuIMB+9O/Op5l1XGCmXAdHJZJ6VtL4Hpc67LBqchmLp2jTC+hj6CUY8j7WePjwtWs4lkD31NxNzUvJ3Y0tB/xG9GdRA6NkpPf1NneIfhgvobLcr6U7LmLUxLcL5MJxwHDIYs4QEv8MxG/wYUEOViPaHZRZ6Kct36JEGvD+i24++tGBFIeMxfSsicjuyMUDd7kq1e0hyfuMcOyjboUyLUNSaV/4Ur4/LYu2gXzaW7sXLZxIdBb7u/B5RPZ02F/VTZXQXXPdWGe2naHoFFrKbLtbddEMB9BuBt3I8Irrt57+073/2xjAtOBjBXYzGfjK+Vp0dedbS4ceuyHSMnAgP0R0IlbctCTCfCu9xs5sIrWtUiw="
+    - secure: "kYanZnvrMWjZoUcbV1Kxyns8ZUWhM456ej6t17C6PyeGaMbMkL4I34GjY1F6auxi8Hx2ppIWepwkcL/+fI3iZsqvn2GXjO/6yssGzkQM3IjFJNaSo1smP1t9R7l5c6WswZ2cG1qg0NwgugGxXzTo2rYPR4HVS6olGsZyzpq+6uLAp53F6JACbMMHC/DVMee6xqJ2O+YZzyX4KR3UO6dyYZtjJQjlDTTQ9Q3Z9JXDdJyn2DwBk8RFyRpDIhfzkiqFL6Yd04O/GC7fp3ZyjnvYr57KSNzv2dqRzPhhgMP1xMZ9IwlZS/81aBfLUecHDGWg3/THO+C/eEpeEjSD2mAyurg1M3HcITTcezP0260FFVIjb87tH7mHxa2mTBVflCnZrxW+PeioTD/nMwYTdY3OJ9eVBHnwb2LGeO4sAf2spV5sE7q4HTIs4msK6sMGR89QaECcZa3I++Xwaaq03oeVM3MqSuByJvOQW1Ir3ox3S3Ypwb/G2P8sQyHidmJ7ngzqtrIU3OGch88A4kYTyEN64dcHSNXwQ/gpC5X5bsFGVfOE/EhsDcBk07hPlAbJvuL+HM3vXzJ2+UulAc9luY0ESDTLJ6jKjkmsK07p5AcQP2f+m+nHnZxNewGSAqSP7DRf2NN/5VLjXkpYu5ngDXMrNee/PRkn509tpO30dVVXeQY="
+    - LTD_MASON_BUILD=false  # disable doc deploys in regular test matrix
+    - LTD_MASON_PRODUCT="ltd-conveyor"
+deploy:
+  provider: pypi
+  user: sqre-admin
+  skip_upload_docs: true
+  distributions: sdist bdist_wheel
+  password:
+    # PyPI deployment credentials for sqre-admin
+    secure: "cgdZynMCCAZmq/nBh4QnOsey60OtSjX//6ti69zAsWWxvEIX+IoCdmfHIRdpY9EQ2w42Vi/Qo+IZK5KvCQTBISzd/NI5kR9gyxpWr4REYb/1W2Igeby2702GPzD89J4y8+vXpggVOfwcIObHaN5wUYgeG932/2WxfllHRfcOtdujrxlYDLWQUd/VX/3QwZBsG2F6a2d8C0CqlgUXBJ/exLDUYchjHmPdilN0EefC5zs2hpoehzQkhlQJlNYWm8YxD/ni556lCPkyLXi8Z3Ol00SnRnvDAM3mu+s6ITS8TKq6PXUrTqpR8JaN/WAG9JQ3Ej+AYGyGwef6Ks2udEp1u1V2dbCY3qnBGvBnRByJ3ey3RALDIhPAMQ1x1vsDfMwKL7Wu0vSXSmjPDUBdHKFEpCec5F4uYfWBewhK79KVaWvt/r0qnz/baEtT+bImeQENyh2oRDJGn4SHKPZEsDGukSzbc1YLSVmHoLN989G8EZH+SDXOYCbA++gakmbromWhYW+01Oc4SQBuCZfgLOOvId5MQwBpoq5LI6pFmKSWo/F49lYJuq/AzJelauSU0tC6SJ0yMzkiz925/IUG58Np5Am3sFltutlC569ZFUFHnL/B8CmKTFwxyM3fMMueAbVqFIv6c4rVpdYs1RePYhxv2Y9I1eNNVjm6I6cgzYDxoxc="
+  on:
+    tags: true
+    repo: lsst-sqre/ltd-conveyor
