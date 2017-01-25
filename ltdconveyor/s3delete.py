@@ -54,18 +54,19 @@ def delete_dir(bucket_name, root_path,
     s3 = session.resource('s3')
     bucket = s3.Bucket(bucket_name)
 
-    # Normalize directory path for searching patch prefixes of objects
-    if not root_path.endswith('/'):
-        root_path.rstrip('/')
+    # Normalize directory path for searching path prefixes of objects
+    root_path.rstrip('/')
 
+    # Find objects under this path prefix
     key_objects = [{'Key': obj.key}
                    for obj in bucket.objects.filter(Prefix=root_path)]
     if len(key_objects) == 0:
         log.info('No objects deleted from bucket {0}:{1}'.format(
             bucket_name, root_path))
         return
-    delete_keys = {'Objects': []}
-    delete_keys['Objects'] = key_objects
+
+    # Delete objects under this path prefix
+    delete_keys = {'Objects': key_objects}
     log.info('Deleting {0:d} objects from bucket {1}:{2}'.format(
         len(key_objects), bucket_name, root_path))
     # based on http://stackoverflow.com/a/34888103

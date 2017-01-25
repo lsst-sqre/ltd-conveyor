@@ -48,9 +48,9 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         directory of the S3 bucket.
     upload_dir_redirect_objects : `bool`, optional
         A feature flag to enable uploading objects to S3 for every directory.
-        These objects contain headers ``x-amz-meta-dir-redirect=true`` HTTP
-        headers that tell Fastly to issue a 301 redirect from the directory
-        object to the `index.html`` in that directory.
+        These objects contain ``x-amz-meta-dir-redirect=true`` HTTP headers
+        that tell Fastly to issue a 301 redirect from the directory object to
+        the `index.html`` in that directory.
     surrogate_key : `str`, optional
         The surrogate key to insert in the header of all objects
         in the ``x-amz-meta-surrogate-key`` field. This key is used to purge
@@ -115,14 +115,10 @@ def upload_dir(bucket_name, path_prefix, source_dir,
     s3 = session.resource('s3')
     bucket = s3.Bucket(bucket_name)
 
-    metadata = None
+    metadata = {}
     if surrogate_key is not None:
-        if metadata is None:
-            metadata = {}
         metadata['surrogate-key'] = surrogate_key
     if surrogate_control is not None:
-        if metadata is None:
-            metadata = {}
         metadata['surrogate-control'] = surrogate_control
 
     manager = ObjectManager(session, bucket_name, path_prefix)
@@ -162,7 +158,8 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         if upload_dir_redirect_objects is True:
             bucket_dir_path = os.path.join(path_prefix, bucket_root)
             bucket_dir_path = bucket_dir_path.rstrip('/')
-            if metadata:
+            if metadata is not None:
+                # create a copy of metadata
                 redirect_metadata = dict(metadata)
             else:
                 redirect_metadata = {}
@@ -203,7 +200,7 @@ def upload_file(local_path, bucket_path, bucket,
     extra_args = {}
     if acl is not None:
         extra_args['ACL'] = acl
-    if metadata is not None:
+    if metadata is not None and len(metadata) > 0:  # avoid empty Metadata
         extra_args['Metadata'] = metadata
     if cache_control is not None:
         extra_args['CacheControl'] = cache_control
@@ -243,12 +240,11 @@ def upload_object(bucket_path, bucket, content='',
     cache_control : `str`, optional
         The cache-control header value. For example, ``'max-age=31536000'``.
     """
-    print('cache_control', cache_control)
     obj = bucket.Object(bucket_path)
 
     # Object.put seems to be sensitive to None-type kwargs, so we filter first
     args = {}
-    if metadata is not None:
+    if metadata is not None and len(metadata) > 0:  # avoid empty Metadata
         args['Metadata'] = metadata
     if acl is not None:
         args['ACL'] = acl
@@ -282,8 +278,7 @@ class ObjectManager(object):
         self._bucket = bucket
         self._bucket_root = bucket_root
         # Strip trailing '/' from bucket_root for comparisons
-        if self._bucket_root.endswith('/'):
-            self._bucket_root = self._bucket_root.rstrip('/')
+        self._bucket_root = self._bucket_root.rstrip('/')
 
     def list_filenames_in_directory(self, dirname):
         """List all file-type object names that exist at the root of this
@@ -304,6 +299,7 @@ class ObjectManager(object):
         filenames = []
         for obj in self._bucket.objects.filter(Prefix=prefix):
             if obj.key.endswith('/'):
+                # a directory redirect object, not a file
                 continue
             obj_dirname = os.path.dirname(obj.key)
             if obj_dirname == prefix:
@@ -333,27 +329,44 @@ class ObjectManager(object):
         prefix = self._create_prefix(dirname)
         dirnames = []
         for obj in self._bucket.objects.filter(Prefix=prefix):
+            # get directory name of every object under this path prefix
             dirname = os.path.dirname(obj.key)
-            # if the object is a directory redirect, make it look like a dir
+
+            # dirname is empty if the object happens to be the directory
+            # redirect object object for the prefix directory (directory
+            # redirect objects are named after directories and have metadata
+            # that tells Fastly to redirect the browser to the index.html
+            # contained in the directory).
             if dirname == '':
                 dirname = obj.key + '/'
+
+            # Strip out the path prefix from the directory name
             rel_dirname = os.path.relpath(dirname, start=prefix)
+
+            # If there's only one part then this directory is at the root
+            # relative to the prefix. We want this.
             dir_parts = rel_dirname.split('/')
             if len(dir_parts) == 1:
                 dirnames.append(dir_parts[0])
+
+        # Above algorithm finds root directories for all *files* in sub
+        # subdirectories; trim down to the unique set.
         dirnames = list(set(dirnames))
+
         if '.' in dirnames:
             dirnames.remove('.')
         return dirnames
 
     def _create_prefix(self, dirname):
+        """Make an absolute directory path in the bucker for dirname,
+        which is is assumed relative to the self._bucket_root prefix directory.
+        """
         if dirname in ('.', '/'):
             dirname = ''
         # Strips trailing slash from dir prefix for comparisons
-        # os.dirname() returns directory names without a trailing /
+        # os.path.dirname() returns directory names without a trailing /
         prefix = os.path.join(self._bucket_root, dirname)
-        if prefix.endswith('/'):
-            prefix = prefix.rstrip('/')
+        prefix = prefix.rstrip('/')
         return prefix
 
     def delete_file(self, filename):
@@ -381,11 +394,10 @@ class ObjectManager(object):
         if not key.endswith('/'):
             key += '/'
 
-        delete_keys = {'Objects': []}
         key_objects = [{'Key': obj.key}
                        for obj in self._bucket.objects.filter(Prefix=key)]
         assert len(key_objects) > 0
-        delete_keys['Objects'] = key_objects
+        delete_keys = {'Objects': key_objects}
         # based on http://stackoverflow.com/a/34888103
         s3 = self._session.resource('s3')
         r = s3.meta.client.delete_objects(Bucket=self._bucket.name,
