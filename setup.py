@@ -9,7 +9,7 @@ author = 'Jonathan Sick'
 author_email = 'jsick@lsst.org'
 license = 'MIT'
 url = 'https://github.com/lsst-sqre/ltd-conveyor'
-version = '0.1.0'
+version = '0.2.0'
 
 
 def read(filename):
@@ -43,7 +43,8 @@ setup(
     packages=find_packages(exclude=['docs', 'tests*', 'data']),
     install_requires=['future>=0.16.0',
                       'boto3>=1.4.4',
-                      'backports.tempfile==1.0rc1']
+                      'backports.tempfile==1.0rc1',
+                      'requests>=2.12.4']
     # package_data={},
     # entry_points={}
 )

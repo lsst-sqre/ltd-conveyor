@@ -3,7 +3,7 @@
 -e .
 
 # Development dependencies
-requests==2.12.4
+responses==0.5.1
 pytest==3.0.5
 pytest-cov==2.4.0
 pytest-flake8==0.8.1
