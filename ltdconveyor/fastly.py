@@ -34,9 +34,11 @@ def purge_key(surrogate_key, service_id, api_key):
     Notes
     -----
     This function uses Fastly's ``/service/{service}/purge/{key}`` endpoint.
-
     See the `Fastly Purge documentation <http://ls.st/jxg>`_ for more
     information.
+
+    For other Fastly APIs, consider using `fastly-py
+    <https://github.com/fastly/fastly-py>`_.
     """
     api_root = 'https://api.fastly.com'
     path = '/service/{service}/purge/{surrogate_key}'.format(
