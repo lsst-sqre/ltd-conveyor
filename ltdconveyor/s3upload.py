@@ -398,6 +398,10 @@ class ObjectManager(object):
 
         if '.' in dirnames:
             dirnames.remove('.')
+
+        if '..' in dirnames:
+            dirnames.remove('..')
+
         return dirnames
 
     def _create_prefix(self, dirname):
