@@ -213,7 +213,8 @@ def upload_file(local_path, bucket_path, bucket,
 
 
 def upload_object(bucket_path, bucket, content='',
-                  metadata=None, acl=None, cache_control=None):
+                  metadata=None, acl=None, cache_control=None,
+                  content_type=None):
     """Upload an arbitrary object to an S3 bucket.
 
     Parameters
@@ -233,6 +234,10 @@ def upload_object(bucket_path, bucket, content='',
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
     cache_control : `str`, optional
         The cache-control header value. For example, ``'max-age=31536000'``.
+    content_type : `str`, optional
+        The object's content type (such as ``text/html``). If left unset,
+        no MIME type is passed to boto3 (which defaults to
+        ``binary/octet-stream``).
     """
     obj = bucket.Object(bucket_path)
 
@@ -244,6 +249,8 @@ def upload_object(bucket_path, bucket, content='',
         args['ACL'] = acl
     if cache_control is not None:
         args['CacheControl'] = cache_control
+    if content_type is not None:
+        args['ContentType'] = content_type
 
     obj.put(Body=content, **args)
 
