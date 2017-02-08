@@ -14,7 +14,8 @@ import boto3
 from .exceptions import S3Error
 
 
-__all__ = ['upload_dir', 'upload_file', 'upload_object', 'ObjectManager']
+__all__ = ['upload_dir', 'upload_file', 'upload_object',
+           'create_dir_redirect_object', 'ObjectManager']
 
 
 # FIXME move logs
@@ -157,19 +158,12 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         # Upload a directory redirect object
         if upload_dir_redirect_objects is True:
             bucket_dir_path = os.path.join(path_prefix, bucket_root)
-            bucket_dir_path = bucket_dir_path.rstrip('/')
-            if metadata is not None:
-                # create a copy of metadata
-                redirect_metadata = dict(metadata)
-            else:
-                redirect_metadata = {}
-            redirect_metadata['dir-redirect'] = 'true'
-            upload_object(bucket_dir_path,
-                          content='',
-                          bucket=bucket,
-                          metadata=redirect_metadata,
-                          acl=acl,
-                          cache_control=cache_control)
+            create_dir_redirect_object(
+                bucket_dir_path,
+                bucket,
+                metadata=metadata,
+                acl=acl,
+                cache_control=cache_control)
 
 
 def upload_file(local_path, bucket_path, bucket,
@@ -252,6 +246,48 @@ def upload_object(bucket_path, bucket, content='',
         args['CacheControl'] = cache_control
 
     obj.put(Body=content, **args)
+
+
+def create_dir_redirect_object(bucket_dir_path, bucket, metadata=None,
+                               acl=None, cache_control=None):
+    """Create an S3 object representing a directory that's designed to
+    redirect a browser (via Fastly) to the ``index.html`` contained inside
+    that directory.
+
+    Parameters
+    ----------
+    bucket_dir_path : `str`
+        Full name of the object in the S3, which is equivalent to a POSIX
+        directory path, like ``dir1/dir2``.
+    bucket : boto3 Bucket instance
+        S3 bucket.
+    metadata : `dict`, optional
+        Header metadata values. These keys will appear in headers as
+        ``x-amz-meta-*``.
+    acl : `str`, optional
+        A pre-canned access control list. See
+        https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
+    cache_control : `str`, optional
+        The cache-control header value. For example, ``'max-age=31536000'``.
+    """
+    # Just the name of the 'directory' itself
+    bucket_dir_path = bucket_dir_path.rstrip('/')
+
+    # create a copy of metadata
+    if metadata is not None:
+        metadata = dict(metadata)
+    else:
+        metadata = {}
+
+    # header used by LTD's Fastly Varnish config to create a 301 redirect
+    metadata['dir-redirect'] = 'true'
+
+    upload_object(bucket_dir_path,
+                  content='',
+                  bucket=bucket,
+                  metadata=metadata,
+                  acl=acl,
+                  cache_control=cache_control)
 
 
 class ObjectManager(object):
