@@ -1,5 +1,6 @@
 import pkg_resources
 
+from .s3utils import open_bucket  # noqa: F401
 from .s3upload import (upload_dir, upload_file, upload_object,  # noqa: F401
                        create_dir_redirect_object,  # noqa: F401
                        ObjectManager)  # noqa: F401
