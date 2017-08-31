@@ -401,11 +401,11 @@ class ObjectManager(object):
         # subdirectories; trim down to the unique set.
         dirnames = list(set(dirnames))
 
-        if '.' in dirnames:
-            dirnames.remove('.')
-
-        if '..' in dirnames:
-            dirnames.remove('..')
+        # Remove posix-like relative directory names that can appear
+        # in the bucket listing.
+        for filtered_dir in ('.', '..'):
+            if filtered_dir in dirnames:
+                dirnames.remove(filtered_dir)
 
         return dirnames
 
