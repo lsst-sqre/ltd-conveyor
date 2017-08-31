@@ -443,6 +443,12 @@ class ObjectManager(object):
         ----------
         dirname : `str`
             Name of the directory, relative to ``bucket_root/``.
+
+        Raises
+        ------
+        RuntimeError
+            Raised when there are no objects to delete (directory
+            does not exist).
         """
         key = os.path.join(self._bucket_root, dirname)
         if not key.endswith('/'):
@@ -450,7 +456,9 @@ class ObjectManager(object):
 
         key_objects = [{'Key': obj.key}
                        for obj in self._bucket.objects.filter(Prefix=key)]
-        assert len(key_objects) > 0
+        if len(key_objects) == 0:
+            msg = 'No objects in bucket directory {}'.format(dirname)
+            raise RuntimeError(msg)
         delete_keys = {'Objects': key_objects}
         # based on http://stackoverflow.com/a/34888103
         s3 = self._session.resource('s3')

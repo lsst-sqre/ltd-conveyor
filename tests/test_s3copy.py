@@ -91,20 +91,20 @@ def test_copy_directory(request):
 
 
 def test_copy_dir_src_in_dest():
-    """Test that copy_directory fails raises an assertion error if source in
+    """Test that copy_directory fails raises a RuntimeError if source in
     destination.
     """
-    with pytest.raises(AssertionError):
+    with pytest.raises(RuntimeError):
         copy_dir('example', 'dest/src', 'dest',
                  aws_access_key_id='id',
                  aws_secret_access_key='key')
 
 
 def test_copy_dir_dest_in_src():
-    """Test that copy_directory fails raises an assertion error if destination
+    """Test that copy_directory fails raises a RuntimeError if destination
     is part of the source.
     """
-    with pytest.raises(AssertionError):
+    with pytest.raises(RuntimeError):
         copy_dir('example', 'src', 'src/dest',
                  aws_access_key_id='id',
                  aws_secret_access_key='key')
