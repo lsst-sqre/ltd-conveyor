@@ -9,10 +9,6 @@ import requests
 from .exceptions import FastlyError
 
 
-logger = logging.getLogger(__name__)
-logger.addHandler(logging.NullHandler())
-
-
 def purge_key(surrogate_key, service_id, api_key):
     """Instant purge URLs with a given surrogate key from the Fastly caches.
 
@@ -40,6 +36,8 @@ def purge_key(surrogate_key, service_id, api_key):
     For other Fastly APIs, consider using `fastly-py
     <https://github.com/fastly/fastly-py>`_.
     """
+    logger = logging.getLogger(__name__)
+
     api_root = 'https://api.fastly.com'
     path = '/service/{service}/purge/{surrogate_key}'.format(
         service=service_id,

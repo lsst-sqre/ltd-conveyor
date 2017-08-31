@@ -18,11 +18,6 @@ __all__ = ['upload_dir', 'upload_file', 'upload_object',
            'create_dir_redirect_object', 'ObjectManager']
 
 
-# FIXME move logs
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
-
-
 def upload_dir(bucket_name, path_prefix, source_dir,
                upload_dir_redirect_objects=True,
                surrogate_key=None,
@@ -108,7 +103,9 @@ def upload_dir(bucket_name, path_prefix, source_dir,
          <https://docs.fastly.com/guides/tutorials/cache-control-tutorial>`_.
        - `Google: HTTP caching <http://ls.st/39v>`_.
     """
-    log.debug('s3upload.upload({0}, {1}, {2})'.format(
+    logger = logging.getLogger(__name__)
+
+    logger.debug('s3upload.upload({0}, {1}, {2})'.format(
         bucket_name, path_prefix, source_dir))
 
     session = boto3.session.Session(
@@ -136,7 +133,7 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         bucket_dirnames = manager.list_dirnames_in_directory(bucket_root)
         for bucket_dirname in bucket_dirnames:
             if bucket_dirname not in dirnames:
-                log.debug(('Deleting bucket directory {0}'.format(
+                logger.debug(('Deleting bucket directory {0}'.format(
                     bucket_dirname)))
                 manager.delete_directory(bucket_dirname)
 
@@ -145,14 +142,15 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         for bucket_filename in bucket_filenames:
             if bucket_filename not in filenames:
                 bucket_filename = os.path.join(bucket_root, bucket_filename)
-                log.debug('Deleting bucket file {0}'.format(bucket_filename))
+                logger.debug(
+                    'Deleting bucket file {0}'.format(bucket_filename))
                 manager.delete_file(bucket_filename)
 
         # Upload files in directory
         for filename in filenames:
             local_path = os.path.join(rootdir, filename)
             bucket_path = os.path.join(path_prefix, bucket_root, filename)
-            log.debug('Uploading to {0}'.format(bucket_path))
+            logger.debug('Uploading to {0}'.format(bucket_path))
             upload_file(local_path, bucket_path, bucket,
                         metadata=metadata, acl=acl,
                         cache_control=cache_control)
@@ -194,6 +192,8 @@ def upload_file(local_path, bucket_path, bucket,
     cache_control : `str`, optional
         The cache-control header value. For example, ``'max-age=31536000'``.
     """
+    logger = logging.getLogger(__name__)
+
     extra_args = {}
     if acl is not None:
         extra_args['ACL'] = acl
@@ -208,7 +208,7 @@ def upload_file(local_path, bucket_path, bucket,
     if content_type is not None:
         extra_args['ContentType'] = content_type
 
-    log.debug(str(extra_args))
+    logger.debug(str(extra_args))
 
     obj = bucket.Object(bucket_path)
     # no return status from the upload_file api
@@ -320,6 +320,8 @@ class ObjectManager(object):
     """
     def __init__(self, session, bucket_name, bucket_root):
         super().__init__()
+        self._logger = logging.getLogger(__name__)
+
         s3 = session.resource('s3')
         bucket = s3.Bucket(bucket_name)
         self._session = session
@@ -454,6 +456,6 @@ class ObjectManager(object):
         s3 = self._session.resource('s3')
         r = s3.meta.client.delete_objects(Bucket=self._bucket.name,
                                           Delete=delete_keys)
-        log.debug(r)
+        self._logger.debug(r)
         if 'Errors' in r:
             raise S3Error('S3 could not delete {0}'.format(key))

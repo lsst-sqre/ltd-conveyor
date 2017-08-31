@@ -13,10 +13,6 @@ import boto3
 from .exceptions import S3Error
 
 
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
-
-
 __all__ = ['delete_dir']
 
 
@@ -47,6 +43,8 @@ def delete_dir(bucket_name, root_path,
     ltdconveyor.exceptions.S3Error
         Thrown by any unexpected faults from the S3 API.
     """
+    logger = logging.getLogger(__name__)
+
     session = boto3.session.Session(
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key,
@@ -61,21 +59,21 @@ def delete_dir(bucket_name, root_path,
     key_objects = [{'Key': obj.key}
                    for obj in bucket.objects.filter(Prefix=root_path)]
     if len(key_objects) == 0:
-        log.info('No objects deleted from bucket {0}:{1}'.format(
+        logger.info('No objects deleted from bucket {0}:{1}'.format(
             bucket_name, root_path))
         return
 
     # Delete objects under this path prefix
     delete_keys = {'Objects': key_objects}
-    log.info('Deleting {0:d} objects from bucket {1}:{2}'.format(
+    logger.info('Deleting {0:d} objects from bucket {1}:{2}'.format(
         len(key_objects), bucket_name, root_path))
     # based on http://stackoverflow.com/a/34888103
     r = s3.meta.client.delete_objects(Bucket=bucket.name,
                                       Delete=delete_keys)
-    log.info(pformat(r))
+    logger.info(pformat(r))
     status_code = r['ResponseMetadata']['HTTPStatusCode']
     if status_code >= 300:
         msg = 'S3 could not delete {0} (status {1:d})'.format(
             root_path, status_code)
-        log.error(msg)
+        logger.error(msg)
         raise S3Error(msg)

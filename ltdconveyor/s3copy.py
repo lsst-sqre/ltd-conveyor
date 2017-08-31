@@ -7,14 +7,9 @@ from future.standard_library import install_aliases
 install_aliases()  # noqa: F401
 
 import os
-import logging
 import boto3
 
 from .s3delete import delete_dir
-
-
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 
 __all__ = ['copy_dir']
