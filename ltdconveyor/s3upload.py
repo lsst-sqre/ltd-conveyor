@@ -27,7 +27,7 @@ def upload_dir(bucket_name, path_prefix, source_dir,
                upload_dir_redirect_objects=True,
                surrogate_key=None,
                surrogate_control=None, cache_control=None,
-               acl='public-read',
+               acl=None,
                aws_access_key_id=None, aws_secret_access_key=None,
                aws_profile=None):
     """Upload a directory of files to S3.
@@ -69,11 +69,13 @@ def upload_dir(bucket_name, path_prefix, source_dir,
         to the browser.
     acl : `str`, optional
         The pre-canned AWS access control list to apply to this upload.
-        Defaults to ``'public-read'``, which allow files to be downloaded
+        Can be ``'public-read'``, which allow files to be downloaded
         over HTTP by the public. See
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
         for an overview of S3's pre-canned ACL lists. Note that ACL settings
-        are not validated locally.
+        are not validated locally. Default is `None`, meaning that no ACL
+        is applied to an individual object. In this case, use ACLs applied
+        to the bucket itself.
     aws_access_key_id : `str`, optional
         The access key for your AWS account. Also set
         ``aws_secret_access_key``.
@@ -188,6 +190,7 @@ def upload_file(local_path, bucket_path, bucket,
     acl : `str`, optional
         A pre-canned access control list. See
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
+        Default is `None`, mean that no ACL is applied to the object.
     cache_control : `str`, optional
         The cache-control header value. For example, ``'max-age=31536000'``.
     """
@@ -232,6 +235,7 @@ def upload_object(bucket_path, bucket, content='',
     acl : `str`, optional
         A pre-canned access control list. See
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
+        Default is `None`, meaning that no ACL is applied to the object.
     cache_control : `str`, optional
         The cache-control header value. For example, ``'max-age=31536000'``.
     content_type : `str`, optional
@@ -274,6 +278,7 @@ def create_dir_redirect_object(bucket_dir_path, bucket, metadata=None,
     acl : `str`, optional
         A pre-canned access control list. See
         https://docs.aws.amazon.com/AmazonS3/latest/dev/acl-overview.html#canned-acl
+        Default is None, meaning that no ACL is applied to the object.
     cache_control : `str`, optional
         The cache-control header value. For example, ``'max-age=31536000'``.
     """
