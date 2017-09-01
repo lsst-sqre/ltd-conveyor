@@ -48,6 +48,21 @@ setup(
                       'backports.tempfile==1.0rc1',
                       'requests>=2.12.4',
                       'versioneer'],
+    extras_require={
+        "dev": [
+            # Development dependencies
+            'responses==0.5.1',
+            'pytest==3.0.5',
+            'pytest-cov==2.4.0',
+            'pytest-flake8==0.8.1',
+            # Documentation dependencies
+            'Sphinx==1.5.2',
+            'astropy-helpers==1.3',
+            'documenteer==0.1.10',
+            'lsst-sphinx-bootstrap-theme==0.1.1',
+            'ltd-mason==0.2.5',
+        ]
+    },
     cmdclass=versioneer.get_cmdclass()
     # package_data={},
     # entry_points={}

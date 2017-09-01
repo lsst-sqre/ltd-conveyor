@@ -10,7 +10,7 @@ matrix:
       - python: "3.5"
         env: LTD_MASON_BUILD=true
 install:
-  - pip install -r requirements.txt
+  - pip install -e ".[dev]"
 script:
   - py.test --flake8 --cov=ltdconveyor
   # automodapi_toctreedirnm is sensitive to being in docs/ dir; will fix in documenteer
