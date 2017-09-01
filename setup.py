@@ -1,6 +1,8 @@
-from setuptools import setup, find_packages
 import os
 from io import open
+
+from setuptools import setup, find_packages
+import versioneer
 
 
 packagename = 'ltd-conveyor'
@@ -9,7 +11,7 @@ author = 'Jonathan Sick'
 author_email = 'jsick@lsst.org'
 license = 'MIT'
 url = 'https://github.com/lsst-sqre/ltd-conveyor'
-version = '0.3.1'
+version = versioneer.get_version()
 
 
 def read(filename):
@@ -44,7 +46,9 @@ setup(
     install_requires=['future>=0.16.0',
                       'boto3>=1.4.4',
                       'backports.tempfile==1.0rc1',
-                      'requests>=2.12.4']
+                      'requests>=2.12.4',
+                      'versioneer'],
+    cmdclass=versioneer.get_cmdclass()
     # package_data={},
     # entry_points={}
 )
