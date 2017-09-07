@@ -1,6 +1,7 @@
 import os
 from io import open
 
+
 from setuptools import setup, find_packages
 import versioneer
 
@@ -44,7 +45,10 @@ setup(
     keywords='lsst',
     packages=find_packages(exclude=['docs', 'tests*', 'data']),
     install_requires=['future>=0.16.0',
-                      'boto3>=1.4.4',
+                      # botocore 1.5.60 is known to have python 2.7 issues
+                      # This temporarily freezes to a working release.
+                      'boto3==1.4.4',
+                      'botocore==1.5.24',
                       'backports.tempfile==1.0rc1',
                       'requests>=2.12.4',
                       'versioneer'],
