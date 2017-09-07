@@ -1,6 +1,9 @@
-from setuptools import setup, find_packages
 import os
 from io import open
+
+
+from setuptools import setup, find_packages
+import versioneer
 
 
 packagename = 'ltd-conveyor'
@@ -9,7 +12,7 @@ author = 'Jonathan Sick'
 author_email = 'jsick@lsst.org'
 license = 'MIT'
 url = 'https://github.com/lsst-sqre/ltd-conveyor'
-version = '0.3.1'
+version = versioneer.get_version()
 
 
 def read(filename):
@@ -42,9 +45,29 @@ setup(
     keywords='lsst',
     packages=find_packages(exclude=['docs', 'tests*', 'data']),
     install_requires=['future>=0.16.0',
-                      'boto3>=1.4.4',
+                      # botocore 1.5.60 is known to have python 2.7 issues
+                      # This temporarily freezes to a working release.
+                      'boto3==1.4.4',
+                      'botocore==1.5.24',
                       'backports.tempfile==1.0rc1',
-                      'requests>=2.12.4']
+                      'requests>=2.12.4',
+                      'versioneer'],
+    extras_require={
+        "dev": [
+            # Development dependencies
+            'responses==0.5.1',
+            'pytest==3.0.5',
+            'pytest-cov==2.4.0',
+            'pytest-flake8==0.8.1',
+            # Documentation dependencies
+            'Sphinx==1.5.2',
+            'astropy-helpers==1.3',
+            'documenteer==0.1.10',
+            'lsst-sphinx-bootstrap-theme==0.1.1',
+            'ltd-mason==0.2.5',
+        ]
+    },
+    cmdclass=versioneer.get_cmdclass()
     # package_data={},
     # entry_points={}
 )

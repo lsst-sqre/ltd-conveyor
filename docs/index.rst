@@ -16,6 +16,25 @@ Installation
 
    pip install ltd-conveyor
 
+Development
+===========
+
+Create a virtual environment for development.
+Then install LTD Conveyor with development dependencies:
+
+.. code-block:: bash
+
+   pip install -e ".[dev]"
+
+You can run tests with:
+
+.. code-block:: bash
+
+   pytest --flake8 --cov=ltdconveyor
+
+Releases are made by creating a Git tag with a semantic version and pushing to GitHub.
+Travis CI creates the PyPI release itself and `versioneer <https://github.com/warner/python-versioneer>`_ ensures the PyPI version matches the Git tag.
+
 API reference
 =============
 

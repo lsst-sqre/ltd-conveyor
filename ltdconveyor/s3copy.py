@@ -7,14 +7,9 @@ from future.standard_library import install_aliases
 install_aliases()  # noqa: F401
 
 import os
-import logging
 import boto3
 
 from .s3delete import delete_dir
-
-
-log = logging.getLogger(__name__)
-log.addHandler(logging.NullHandler())
 
 
 __all__ = ['copy_dir']
@@ -84,6 +79,8 @@ def copy_dir(bucket_name, src_path, dest_path,
     ------
     ltdconveyor.exceptions.S3Error
         Thrown by any unexpected faults from the S3 API.
+    RuntimeError
+        Thrown when the source and destination directories are the same.
     """
     if not src_path.endswith('/'):
         src_path += '/'
@@ -92,8 +89,14 @@ def copy_dir(bucket_name, src_path, dest_path,
 
     # Ensure the src_path and dest_path don't contain each other
     common_prefix = os.path.commonprefix([src_path, dest_path])
-    assert common_prefix != src_path
-    assert common_prefix != dest_path
+    if common_prefix == src_path:
+        msg = 'Common prefix {0} is same as source dir {1}'.format(
+            common_prefix, src_path)
+        raise RuntimeError(msg)
+    if common_prefix == dest_path:
+        msg = 'Common prefix {0} is same as dest dir {1}'.format(
+            common_prefix, dest_path)
+        raise RuntimeError(msg)
 
     # Delete any existing objects in the destination
     delete_dir(bucket_name, dest_path,
