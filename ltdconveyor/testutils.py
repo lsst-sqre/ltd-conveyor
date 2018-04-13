@@ -1,19 +1,10 @@
-"""Test utilities available to test modules."""
-from __future__ import (division, absolute_import, print_function,
-                        unicode_literals)
-from builtins import *  # noqa: F401,F403
-from future.standard_library import install_aliases
-install_aliases()  # noqa: F401
+"""Test utilities available to test modules.
+"""
+
+__all__ = ('upload_test_files',)
 
 import os
-try:
-    from tempfile import TemporaryDirectory
-except ImportError:
-    # Python 2.7 compatibility
-    from backports.tempfile import TemporaryDirectory
-
-
-__all__ = ['upload_test_files']
+from tempfile import TemporaryDirectory
 
 
 def upload_test_files(file_paths, bucket, bucket_root,
@@ -47,11 +38,7 @@ def upload_test_files(file_paths, bucket, bucket_root,
         for p in file_paths:
             full_path = os.path.join(temp_dir, p)
             full_dir = os.path.dirname(full_path)
-            try:
-                os.makedirs(full_dir, exist_ok=True)
-            except TypeError:
-                # work around Python 2.7, which doesn't have exist_ok
-                _make_dirs(full_dir)
+            os.makedirs(full_dir, exist_ok=True)
             with open(full_path, 'w') as f:
                 f.write('content')
 
@@ -61,29 +48,3 @@ def upload_test_files(file_paths, bucket, bucket_root,
                 'CacheControl': cache_control}
             obj = bucket.Object(bucket_root + p)
             obj.upload_file(full_path, ExtraArgs=extra_args)
-
-
-def _make_dirs(full_dir_path):
-    """Create a potentially nested directory structure (temporary Python 2.7
-    affordance).
-    """
-    # Stripping out leading '/' because it prevents the split and join from
-    # being reversible. We'll just add the leading '/' later.
-    if full_dir_path.startswith('/'):
-        make_absolute = True
-        full_dir_path = full_dir_path.lstrip('/')
-    else:
-        make_absolute = False
-
-    all_dirs = full_dir_path.split(os.path.sep)
-    for i in range(len(all_dirs)):
-        if i == 0:
-            dir_path = all_dirs[0]
-        else:
-            dir_path = os.path.join(*all_dirs[:i + 1])
-
-        if make_absolute:
-            dir_path = '/' + dir_path
-
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)

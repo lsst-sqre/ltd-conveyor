@@ -10,6 +10,14 @@ author = 'Jonathan Sick'
 author_email = 'jsick@lsst.org'
 license = 'MIT'
 url = 'https://github.com/lsst-sqre/ltd-conveyor'
+classifiers = [
+    'Development Status :: 4 - Beta',
+    'License :: OSI Approved :: MIT License',
+    'Programming Language :: Python :: 3.4',
+    'Programming Language :: Python :: 3.5',
+    'Programming Language :: Python :: 3.6',
+]
+keywords = 'lsst'
 
 
 def read(filename):
@@ -23,12 +31,7 @@ long_description = read('README.rst')
 
 # Core dependencies
 install_requires = [
-    'future>=0.16.0',
-    # botocore 1.5.60 is known to have python 2.7 issues
-    # This temporarily freezes to a working release.
     'boto3==1.4.4',
-    'botocore==1.5.24',
-    'backports.tempfile==1.0rc1',
     'requests>=2.12.4'
 ]
 
@@ -67,15 +70,8 @@ setup(
     author=author,
     author_email=author_email,
     license=license,
-    classifiers=[
-        'Development Status :: 4 - Beta',
-        'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
-    ],
-    keywords='lsst',
+    classifiers=classifiers,
+    keywords=keywords,
     packages=find_packages(exclude=['docs', 'tests*', 'data']),
     install_requires=install_requires,
     extras_require=extras_require,

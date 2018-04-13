@@ -1,19 +1,13 @@
-"""Delete an S3 directory."""
+"""Delete an S3 directory.
+"""
 
-from __future__ import (division, absolute_import, print_function,
-                        unicode_literals)
-from builtins import *  # noqa: F401,F403
-from future.standard_library import install_aliases
-install_aliases()  # noqa: F401
+__all__ = ('delete_dir',)
 
 import logging
 from pprint import pformat
 import boto3
 
 from .exceptions import S3Error
-
-
-__all__ = ['delete_dir']
 
 
 def delete_dir(bucket_name, root_path,

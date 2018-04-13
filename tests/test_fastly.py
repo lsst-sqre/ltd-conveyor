@@ -1,4 +1,5 @@
-"""Tests for `ltdconveyor.fastly`."""
+"""Tests for `ltdconveyor.fastly`.
+"""
 
 import uuid
 import pytest

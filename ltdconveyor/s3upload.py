@@ -1,9 +1,8 @@
-"""S3 upload/sync utilities."""
-from __future__ import (division, absolute_import, print_function,
-                        unicode_literals)
-from builtins import *  # noqa: F401,F403
-from future.standard_library import install_aliases
-install_aliases()  # noqa: F401
+"""S3 upload/sync utilities.
+"""
+
+__all__ = ('upload_dir', 'upload_file', 'upload_object',
+           'create_dir_redirect_object', 'ObjectManager')
 
 import os
 import logging
@@ -12,10 +11,6 @@ import mimetypes
 import boto3
 
 from .exceptions import S3Error
-
-
-__all__ = ['upload_dir', 'upload_file', 'upload_object',
-           'create_dir_redirect_object', 'ObjectManager']
 
 
 def upload_dir(bucket_name, path_prefix, source_dir,

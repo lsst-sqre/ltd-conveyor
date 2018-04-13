@@ -1,4 +1,5 @@
-"""S3 utilities."""
+"""S3 utilities.
+"""
 
 import boto3
 
