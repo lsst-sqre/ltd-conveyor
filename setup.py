@@ -1,9 +1,7 @@
 import os
 from io import open
 
-
 from setuptools import setup, find_packages
-import versioneer
 
 
 packagename = 'ltd-conveyor'
@@ -12,7 +10,6 @@ author = 'Jonathan Sick'
 author_email = 'jsick@lsst.org'
 license = 'MIT'
 url = 'https://github.com/lsst-sqre/ltd-conveyor'
-version = versioneer.get_version()
 
 
 def read(filename):
@@ -27,7 +24,6 @@ long_description = read('README.rst')
 
 setup(
     name=packagename,
-    version=version,
     description=description,
     long_description=long_description,
     url=url,
@@ -50,8 +46,7 @@ setup(
                       'boto3==1.4.4',
                       'botocore==1.5.24',
                       'backports.tempfile==1.0rc1',
-                      'requests>=2.12.4',
-                      'versioneer'],
+                      'requests>=2.12.4'],
     extras_require={
         "dev": [
             # Development dependencies
@@ -67,7 +62,8 @@ setup(
             'ltd-mason==0.2.5',
         ]
     },
-    cmdclass=versioneer.get_cmdclass()
+    setup_requires=['setuptools_scm'],
+    use_scm_version=True,
     # package_data={},
     # entry_points={}
 )
