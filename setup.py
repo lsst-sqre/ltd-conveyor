@@ -52,7 +52,7 @@ tests_require = [
 # Optional/development dependencies
 docs_require = [
     'Sphinx==1.5.2',
-    'astropy-helpers==1.3',
+    'astropy-helpers==3.0.1',
     'documenteer==0.1.10',
     'lsst-sphinx-bootstrap-theme==0.1.1',
     'ltd-mason==0.2.5',

@@ -26,7 +26,7 @@ help:
 .PHONY: clean
 clean:
 	rm -rf $(BUILDDIR)/*
-	rm -rf py-api
+	rm -rf api
 
 .PHONY: html
 html:
