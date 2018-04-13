@@ -3,12 +3,14 @@ language: python
 python:
   - '2.7'
   - '3.4'
-  - '3.6'
 matrix:
     include:
       # This is the ltd-mason documentation deployment build
       - python: "3.5"
         env: LTD_MASON_BUILD=true
+      # Use the Python 3.6 build for PyPI deployments
+      - python: "3.6"
+        env: PYPI_DEPLOY=true
 install:
   - pip install -e ".[dev]"
 script:
@@ -19,6 +21,7 @@ after_success:
   - ltd-mason-travis --html-dir docs/_build/html --verbose
 env:
   global:
+    - PYPI_DEPLOY=false  # disable PyPI pushes in regular matrix
     # PyPI deployment credentials
     - secure: Xhw5hMO/IEAjDb4v68e44NlZWct+xA3he3Yyq3oJddrxzgZPBzCpi60HkSqQCdxePvut9w/ZTS81eEUnc+7Ym2j+JqSB45Rtepe/CHM1l73tVfMG3GpELCvB6MDSgSvBxpNB+OxLM2yPsXYUIghSEQ0rQIIMoUrTvMVvxpAGNRvFjRSbSGgDUDssLB7oGBvfAWzNfCuW8uU55Youf4CPm9I9gfMro86YatRF0h/yWveomkuojy9lo9siOxi9y4lEdcN5nDoFotddhlmp2B54oaTHvFl/vPOON0uKkTgopCfLv+cplnhWEx7McjZBcc01M/s9k+oRE1UkXpgM5lmf7pfKdaV+YZ7rbw2QudSjx+p2SFnBbCT24GfHY8pCJuwz63rUDPOt2BtH9n4cdjkrhm76AOJy5mF5W2/m5yKU6uktNhzFkkWsa9iIAgYU9FIMweKEwQdtpymAnHaArP1YSOJfM7BYspIp30gAMjs+HKBJiyIRPGHEnqekN/Yt6fnI2L0Zw5n5SREWqtaG1ishim3QEZvrfcczIik1HQo2D4hqc/BszjEkE+70WJ4tdmQJ9bW1MBMtSGFfsETmuvYmC1oreRHs0PRxR4y3W3i2TV+fJPRKqyrQcxiBQvbnkOHyYgCW/wXQHDMJbpNt/qmVRVLSIq2Pz7IdM8CTbUa3jQc=
     - secure: NTEJa1wL27hu9LrSNELh18Zzfdr5dr76wEYJz+E04gixJ3R3XyaU4B8MAodMvAC8V1du1BhP3pZHYby6ZxnSOhPZvAZL4FbEFkOPs1oS/qgpam8sf5+HYplfNZ+3vKxz0yxPdPE/Ltk1gsVqgOtjXyX4VTaCNtoH++pYAXBxdkjoQ1CwgmT6fIBGliH+Kf6b7z1Br+DDycaslMnlWu0guWNRwPKs/M8VPL3C3wEE6zEbAPtaSDYaB4fLqLwaKrjiOxKsKIlOV8A+BLZMPUmq3jlnrv6f3Ic2PNluiDnOVf1xzKHogt6KX0JBUANYpsE3qVDXMI76Ulv0S+446Pp1hxla3qj8noDPZal0xKG8S94aKEN01+QnktXbezK61/ErI9JCUk9AinjtT6uOk6MjLSjD0sLSwsNjvB3Ba4T4GEa0KI34wbH1PSdJJX5wyXHawxPK3eGwgqOvnUQtJbXGmgbhq4O0UUWbwOg/M7sf2Sb/85wZtwf5Ok134t9Uq0QJFyq+m+Hy8Yo+iKDAVXaok3ZQ7LIdC4EnnuFUOR6Kg3VIVu4zdiuLMmDUfR2pXhlS1+Ac9KGwuDePgBAW9lCKWm9r+AvheXAJ7CJASFSVyXJq+tWXjRutkrvaBpKzx2Z6iw0EWkVVl4bVPAGJozfhrRADNsD9yPZWY4ff3qqn34o=
@@ -39,3 +42,4 @@ deploy:
   on:
     tags: true
     repo: lsst-sqre/ltd-conveyor
+    condition: "$PYPI_DEPLOY = true"
