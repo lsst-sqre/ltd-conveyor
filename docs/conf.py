@@ -19,7 +19,7 @@ except Exception:
 
 c = {}
 project = 'LTD Conveyor'
-copyright = 'Copyright 2016-2018 Association of Universities for Research in Astronomy'
+copyright = '2016-2018 Association of Universities for Research in Astronomy'
 version = ltdconveyor.__version__
 release = ltdconveyor.__version__
 today = date.strftime('%Y-%m-%d')
