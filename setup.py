@@ -33,7 +33,8 @@ long_description = read('README.rst')
 install_requires = [
     'boto3==1.4.4',
     'requests>=2.12.4',
-    'uritemplate>=3.0.0,<3.1.0'
+    'uritemplate>=3.0.0,<3.1.0',
+    'click>=6.7,<7.0'
 ]
 
 # Setup dependencies
@@ -80,5 +81,9 @@ setup(
     tests_require=tests_require,
     use_scm_version=True,
     # package_data={},
-    # entry_points={}
+    entry_points={
+        'console_scripts': [
+            'ltd = ltdconveyor.cli.main:main',
+        ]
+    }
 )
