@@ -5,7 +5,7 @@ import uuid
 import pytest
 import responses
 
-from ltdconveyor import purge_key, FastlyError
+from ltdconveyor.fastly import purge_key, FastlyError
 
 
 @responses.activate

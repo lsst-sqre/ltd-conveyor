@@ -27,7 +27,7 @@ import mimetypes
 import pytest
 import boto3
 import requests
-from ltdconveyor.s3upload import upload_dir
+from ltdconveyor.s3 import upload_dir
 
 
 log = logging.getLogger(__name__)

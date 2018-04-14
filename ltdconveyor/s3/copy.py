@@ -6,7 +6,7 @@ __all__ = ('copy_dir',)
 import os
 import boto3
 
-from .s3delete import delete_dir
+from .delete import delete_dir
 
 
 def copy_dir(bucket_name, src_path, dest_path,
@@ -71,7 +71,7 @@ def copy_dir(bucket_name, src_path, dest_path,
 
     Raises
     ------
-    ltdconveyor.exceptions.S3Error
+    ltdconveyor.s3.S3Error
         Thrown by any unexpected faults from the S3 API.
     RuntimeError
         Thrown when the source and destination directories are the same.

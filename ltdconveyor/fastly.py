@@ -3,10 +3,12 @@
 See https://docs.fastly.com/api for background.
 """
 
+__all__ = ('purge_key', 'FastlyError')
+
 import logging
 import requests
 
-from .exceptions import FastlyError
+from .exceptions import ConveyorError
 
 
 def purge_key(surrogate_key, service_id, api_key):
@@ -48,3 +50,8 @@ def purge_key(surrogate_key, service_id, api_key):
                                'Accept': 'application/json'})
     if r.status_code != 200:
         raise FastlyError(r.json)
+
+
+class FastlyError(ConveyorError):
+    """Error related to Fastly API usage.
+    """

@@ -24,7 +24,7 @@ import uuid
 import boto3
 import pytest
 
-from ltdconveyor import copy_dir, delete_dir
+from ltdconveyor.s3 import copy_dir, delete_dir
 from ltdconveyor.testutils import upload_test_files
 
 

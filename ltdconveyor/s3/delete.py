@@ -34,7 +34,7 @@ def delete_dir(bucket_name, root_path,
 
     Raises
     ------
-    ltdconveyor.exceptions.S3Error
+    ltdconveyor.s3.S3Error
         Thrown by any unexpected faults from the S3 API.
     """
     logger = logging.getLogger(__name__)
