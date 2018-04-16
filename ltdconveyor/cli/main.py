@@ -7,6 +7,8 @@ import logging
 
 import click
 
+from .upload import upload
+
 
 # Add -h as a help shortcut option
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
@@ -71,3 +73,7 @@ def help(ctx, topic, **kw):
         click.echo(ctx.parent.get_help())
     else:
         click.echo(main.commands[topic].get_help(ctx))
+
+
+# Add subcommands from other modules
+main.add_command(upload)
