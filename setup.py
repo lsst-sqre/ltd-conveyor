@@ -32,7 +32,8 @@ long_description = read('README.rst')
 # Core dependencies
 install_requires = [
     'boto3==1.4.4',
-    'requests>=2.12.4'
+    'requests>=2.12.4',
+    'uritemplate>=3.0.0,<3.1.0'
 ]
 
 # Setup dependencies
