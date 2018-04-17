@@ -5,6 +5,28 @@ Change log
 Unreleased
 ==========
 
+Added
+-----
+
+- Added a new command-line app, ``ltd``, that provides subcommands for clients to work with the LSST the Docs API.
+  This app is implemented with Click_, and its documentation is automatically generated from the command-line help with `sphinx-click`_.
+
+  The first subcommand is ``ltd upload``, which lets a client upload a site to LTD as a new build.
+  This command includes special features for using the client from Travis CI (``ltd upload --travis`` option) to populate the version information from the Travis environment.
+  Other flags allow ``ltd upload`` to become a no-op under certain circumstances (for example, skip uploads on pull requests) or arbitrarily (set ``ltd upload --skip`` or ``export LTD_SKIP_UPLOAD=true``).
+
+  .. note::
+
+     With this feature, LTD Conveyor effectively deprecates `LTD Mason`_.
+     LTD Mason was the original uploader for LSST the Docs, but it was also designed around the idea of building the `LSST Science Pipelines` documentation as well (hence the term "mason").
+     Over time, we realized it is better to have a general purpose client and uploader for LSST the Docs (LTD Conveyor) and a dedicated tool for assembling the multi-package Sphinx documentation site (`Documenteer`_).
+
+- Added the `ltdconveyor.keeper` subpackage that widens the scope of LTD Conveyor to be a full-service library for building LTD clients, not just an S3 upload client.
+
+  - The `ltdconveyor.keeper.login.get_keeper_token` function lets you obtain a temporary auth token for the LTD Keeper API.
+
+  - The `ltdconveyor.keeper.build` module includes functions for performing the build upload handshake with the LTD Keeper API.
+
 Changed
 -------
 
@@ -86,3 +108,7 @@ Added
 .. _LTD Keeper: https://ltd-keeper.lsst.io
 .. _LTD Mason: https://ltd-mason.lsst.io
 .. _LTD Dasher: https://github.com/lsst-sqre/ltd-dasher
+.. _Documenteer: https://github.com/lsst-sqre/documenteer
+.. _Click: http://click.pocoo.org/
+.. _sphinx-click: https://sphinx-click.readthedocs.io/en/latest/
+.. _LSST Science Pipelines: https://pipelines.lsst.io
