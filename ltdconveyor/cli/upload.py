@@ -91,9 +91,9 @@ def upload(ctx, product, git_ref, dirname, aws_id, aws_secret, ci_env,
         sys.exit(0)
 
     logger.debug('CI environment: %s', ci_env)
-    logging.debug('Travis events settings. '
-                  'On Push: %r, PR: %r, API: %r, Cron: %r',
-                  on_travis_push, on_travis_pr, on_travis_api, on_travis_cron)
+    logger.debug('Travis events settings. '
+                 'On Push: %r, PR: %r, API: %r, Cron: %r',
+                 on_travis_push, on_travis_pr, on_travis_api, on_travis_cron)
 
     # Abort upload on Travis CI under certain events
     if ci_env == 'travis' and \

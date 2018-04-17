@@ -45,6 +45,15 @@ def main(ctx, log_level, keeper_hostname, username, password):
 
     Use ltd to upload new site builds, and to work with the LTD Keeper API.
     """
+    ch = logging.StreamHandler()
+    formatter = logging.Formatter(
+        '%(asctime)s %(levelname)8s %(name)s | %(message)s')
+    ch.setFormatter(formatter)
+
+    logger = logging.getLogger('ltdconveyor')
+    logger.addHandler(ch)
+    logger.setLevel(log_level.upper())
+
     # Subcommands should use the click.pass_obj decorator to get this
     # ctx.obj object as the first argument.
     ctx.obj = {
@@ -53,11 +62,6 @@ def main(ctx, log_level, keeper_hostname, username, password):
         'password': password,
         'token': None
     }
-
-    # configure internal logging
-    logger = logging.getLogger('ltdconveyor')
-    logger.addHandler(logging.StreamHandler())
-    logger.setLevel(log_level.upper())
 
 
 @main.command()
