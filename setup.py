@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 packagename = 'ltd-conveyor'
-description = 'LSST the Docs Amazon S3 object management package'
+description = 'LSST the Docs Amazon client app and Python API library'
 author = 'Jonathan Sick'
 author_email = 'jsick@lsst.org'
 license = 'MIT'
