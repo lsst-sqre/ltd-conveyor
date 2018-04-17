@@ -57,7 +57,6 @@ docs_require = [
     'astropy-helpers==3.0.1',
     'documenteer==0.1.10',
     'lsst-sphinx-bootstrap-theme==0.1.1',
-    'ltd-mason==0.2.5',
     'sphinx-click==1.1.0',
 ]
 extras_require = {
