@@ -44,7 +44,6 @@ def main(ctx, log_level, keeper_hostname, username, password):
     """ltd is a command-line client for LSST the Docs.
 
     Use ltd to upload new site builds, and to work with the LTD Keeper API.
-    repository.
     """
     # Subcommands should use the click.pass_obj decorator to get this
     # ctx.obj object as the first argument.

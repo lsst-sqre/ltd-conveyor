@@ -21,6 +21,7 @@ Documentation
 
 .. toctree::
 
+   cli
    api
    changes
    development
