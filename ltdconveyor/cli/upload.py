@@ -71,12 +71,24 @@ from .utils import ensure_login
     help='Upload on a Travis CI cron event (enabled by default). '
          'Must be used with --travis.'
 )
+@click.option(
+    '--skip', 'skip_upload', default=False, is_flag=True,
+    envvar='LTD_SKIP_UPLOAD',
+    help='Skip the upload, making the command a no-op. '
+         'Useful in CI environments to disable a site upload just by setting '
+         'this option or the environment variable $LTD_SKIP_UPLOAD=true.'
+)
 @click.pass_context
 def upload(ctx, product, git_ref, dirname, aws_id, aws_secret, ci_env,
-           on_travis_push, on_travis_pr, on_travis_api, on_travis_cron):
+           on_travis_push, on_travis_pr, on_travis_api, on_travis_cron,
+           skip_upload):
     """Upload a new site build to LSST the Docs.
     """
     logger = logging.getLogger(__name__)
+
+    if skip_upload:
+        click.echo('Skipping ltd upload.')
+        sys.exit(0)
 
     logger.debug('CI environment: %s', ci_env)
     logging.debug('Travis events settings. '

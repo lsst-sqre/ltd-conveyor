@@ -7,7 +7,7 @@ matrix:
     include:
       # Use the Python 3.6 build for PyPI deployments and doc uploads
       - python: "3.6"
-        env: PYPI_DEPLOY=true DOC_UPLOAD=true
+        env: PYPI_DEPLOY=true LTD_SKIP_UPLOAD=false
 install:
   - pip install -e ".[dev]"
 script:
@@ -15,7 +15,7 @@ script:
   # automodapi_toctreedirnm is sensitive to being in docs/ dir; will fix in documenteer
   - cd docs && sphinx-build -b html -a -W -d _build/doctree . _build/html && cd ../
 after_success:
-  - 'if ["${DOC_UPLOAD}" = "true"]; then ltd --log-level debug upload --product "ltd-conveyor" --travis --dir docs/_build/html ; fi'
+  - 'ltd --log-level debug upload --product "ltd-conveyor" --travis --dir docs/_build/html'
 env:
   global:
     - PYPI_DEPLOY=false  # disable PyPI pushes in regular matrix
@@ -26,7 +26,7 @@ env:
     # LTD Keeper / S3 deployment credentials and configs
     - secure: "arWTnvRF6DiXyGai0emJ36olQJGqHJKBe5B96yhGMtdeZwCSfhbRPCIPF5p09CLs49os5uRBR2OgOLRqVYjWXYcw5vrPNPy++O0EBmmbKkUgWXiphbeqQD/1neRNSV1Yol3ZsTshcMGEx2JGBa77gd6svUGICD4rPUjw77NgvhMl5w2hhmf96tWc3Pq3kvhlBDFmvcdS6mO/M7UeZxYEFCzld5PPYPhK2SJTwFPji21nR/nGindUdsfyyIcnCAhXid1haF235wCqEo+SCUIQT6VhW3EPK/X8DbO+CRo1Abav5Xc2cG04SafVALOQIbel+aM29m7U1G5AmVtjs4pJ51QRa2954ADJFJSUV2WBO57025V57NEvQZi8CqyD0SFdtDhW4iYGN1ZiN1FIU/r1YCzXOff5DHb6i0IO5SclDKGMF1XflsvbQZMsss7AKQ1jSVaPZpawCMW3qSO+pNkqkd6qeU2dWgxkGueyd5HbF3yJKFln6ekMU3wc6KDxoIkFrIOc65Y013m/ACR4/l45F//vWK0AMS89gZp5gEvXgIeceJ2bjkZ0ile04FWp1BlOE5jm338BF6QijGakGy5/0S4CXKdQVpvtB9YsjFdHGXuizheCPXhTneYDyhAEgl99DMda4UfaMiU5zkjDdZR5PCGLC1zCz/3+E402+OwoL+0="
     - secure: "ZRFGeZsyRTu8vKoe5/ro/cXl8MEBiFEOpyWi602w8IsIavklVu09/vVtzRfYSQ5MdvCD1XiSR+tcmD8Zpu0SOc87PZNRRvVzAdpAop/7LJP9KGd5QSHs+LdQZfQme06R2OLLPVizq0buPn2AY90i/z3zgUp7roT2efQlVUAcjQFlwWROZdAPU4m42Dg8xmefzvORcrcGVQ4lAoNsIPiWVTt3jNTv8/iemFe0QH1MaBWhKjsUN/vcacoxJ+GQPq39ZWK7M9VaSIngZ0bHaz9CgvDQuIvsYWTq4bYfjBBz7GPKyfxfdMKh2CRoTlBITMJJ1ddHY4zh9gi6oDhDXZefSqi6fJ3AcXdWnF5mnmQ+xYrvnsdLyOjFFfnvJVEEpEM34vfRQWNkw+Z+bXRFB6MglJBCouiEEfbZhGWOg//fE/ep5IKGSzqPkeyEVubGJYsfK72oPe/Sy+nEQsnck9gX+UWUPwAREAOew620dFxdx+09aXFN1v5X85uuLzwmwYJvfK6PNFshcYABAFKjkVZqcls2udM6Rcp4Ld+Nyur42it8kmjAlvbccU3TVIqEI7yKUefoSgj49fgoxPa1/2Fed9OON74OXXvN5p53CWovwvzQoIDSGNshmUrOu+dc9nQCkjnl71WaEG+RWSLfVz5F9ZQVef/FPmrYEliqVwTHh1g="
-    - DOC_UPLOAD=false  # disable doc deploys in regular test matrix
+    - LTD_SKIP_UPLOAD=true  # disable doc deploys in regular test matrix
 deploy:
   provider: pypi
   user: sqre-admin
