@@ -8,20 +8,20 @@ Unreleased
 Changed
 -------
 
-- Remove Python 2.7 compatibility.
-  Now the codebase is entirely Python 3 (3.4, 3.5, 3.6)-oriented.
+- Removed Python 2.7 and 3.4 compatibility.
+  Now the codebase is entirely Python 3 (3.5, 3.6)-oriented.
 
-- Totally re-organized Python namespace.
+- Completely reorganized Python namespace.
   Now all S3 APIs are in ``ltdconveyor.s3``.
   Fastly APIs are available from ``ltdconveyor.fastly``.
 
-- Use ``setuptools_scm`` to generate version strings for releases.
+- Switched to using ``setuptools_scm`` to generate version strings for releases.
 
-- Switch to using using ``extras_require`` for dev deps (``pip install -e ".[dev]"``).
+- Switched to using ``extras_require`` for development dependencies (``pip install -e ".[dev]"``).
   This lets us exclusively coordinate dependencies in ``setup.py``.
 
 - Enable testing via ``python setup.py test``.
-  Also upgrade the testing stack to pytest 3.5 and pytest-flake7 1.0.
+  Also upgrade the testing stack to ``pytest`` 3.5 and ``pytest-flake8`` 1.0.
 
 - Compatibility updates to the Sphinx documentation infrastructure.
 
@@ -36,7 +36,7 @@ Changed
 Fixed
 -----
 
-- Change assertions to ``RuntimeErrors``.
+- Changed assertions to ``RuntimeErrors``.
   Assertions shouldn't be used to raise exceptions in production code.
 
 0.3.1 (2017-03-27)
