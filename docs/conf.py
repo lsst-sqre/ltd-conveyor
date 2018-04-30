@@ -34,6 +34,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.ifconfig',
     'sphinx.ext.viewcode',
+    'sphinx_click.ext',
     'astropy_helpers.extern.numpydoc.numpydoc',
     'astropy_helpers.extern.automodapi.autodoc_enhancements',
     'astropy_helpers.extern.automodapi.automodsumm',

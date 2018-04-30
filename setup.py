@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 
 
 packagename = 'ltd-conveyor'
-description = 'LSST the Docs Amazon S3 object management package'
+description = 'LSST the Docs Amazon client app and Python API library'
 author = 'Jonathan Sick'
 author_email = 'jsick@lsst.org'
 license = 'MIT'
@@ -13,7 +13,6 @@ url = 'https://github.com/lsst-sqre/ltd-conveyor'
 classifiers = [
     'Development Status :: 4 - Beta',
     'License :: OSI Approved :: MIT License',
-    'Programming Language :: Python :: 3.4',
     'Programming Language :: Python :: 3.5',
     'Programming Language :: Python :: 3.6',
 ]
@@ -32,7 +31,9 @@ long_description = read('README.rst')
 # Core dependencies
 install_requires = [
     'boto3==1.4.4',
-    'requests>=2.12.4'
+    'requests>=2.12.4',
+    'uritemplate>=3.0.0,<3.1.0',
+    'click>=6.7,<7.0'
 ]
 
 # Setup dependencies
@@ -55,7 +56,7 @@ docs_require = [
     'astropy-helpers==3.0.1',
     'documenteer==0.1.10',
     'lsst-sphinx-bootstrap-theme==0.1.1',
-    'ltd-mason==0.2.5',
+    'sphinx-click==1.1.0',
 ]
 extras_require = {
     'dev': docs_require + tests_require
@@ -79,5 +80,9 @@ setup(
     tests_require=tests_require,
     use_scm_version=True,
     # package_data={},
-    # entry_points={}
+    entry_points={
+        'console_scripts': [
+            'ltd = ltdconveyor.cli.main:main',
+        ]
+    }
 )
