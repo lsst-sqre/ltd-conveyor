@@ -17,13 +17,4 @@ All documentation hosted by LTD is served through the `Fastly CDN <https://www.f
 Conveyor ensures that this metadata is properly set by all microservices that upload, copy, or delete objects from S3.
 You can learn more about LTD in our `SQR-006 <https://sqr-006.lsst.io>`_ technote.
 
-Read the docs
-=============
-
-https://ltd-conveyor.lsst.io
-
-****
-
-Copyright 2016-2017 Association of Universities for Research in Astronomy, Inc..
-
-MIT licensed. See the LICENSE file.
+**Read the docs:** https://ltd-conveyor.lsst.io

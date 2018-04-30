@@ -1,4 +1,7 @@
-"""S3 utilities."""
+"""S3 utilities.
+"""
+
+__all__ = ('open_bucket',)
 
 import boto3
 

@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """Tests for ltdconveyor.s3upload.upload_dir
 
 These tests required the following environment variables:
@@ -18,12 +17,6 @@ Note that this test will create a random uuid4) directory at the root of
 ``LTD_TEST_BUCKET``, though the test harness will attempt to delete it.
 """
 
-from __future__ import (division, absolute_import, print_function,
-                        unicode_literals)
-from builtins import *  # noqa: F401,F403
-from future.standard_library import install_aliases
-install_aliases()  # noqa: F401
-
 import os
 import shutil
 import tempfile
@@ -34,7 +27,7 @@ import mimetypes
 import pytest
 import boto3
 import requests
-from ltdconveyor.s3upload import upload_dir
+from ltdconveyor.s3 import upload_dir
 
 
 log = logging.getLogger(__name__)
