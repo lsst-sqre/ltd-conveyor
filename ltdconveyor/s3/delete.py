@@ -4,7 +4,6 @@
 __all__ = ('delete_dir',)
 
 import logging
-from pprint import pformat
 import boto3
 
 from .exceptions import S3Error
@@ -41,33 +40,36 @@ def delete_dir(bucket_name, root_path,
 
     session = boto3.session.Session(
         aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
-        profile_name=aws_profile)
+        aws_secret_access_key=aws_secret_access_key)
     s3 = session.resource('s3')
-    bucket = s3.Bucket(bucket_name)
+    client = s3.meta.client
 
-    # Normalize directory path for searching path prefixes of objects
-    root_path.rstrip('/')
+    # Normalize directory path for searching patch prefixes of objects
+    if not root_path.endswith('/'):
+        root_path.rstrip('/')
 
-    # Find objects under this path prefix
-    key_objects = [{'Key': obj.key}
-                   for obj in bucket.objects.filter(Prefix=root_path)]
-    if len(key_objects) == 0:
-        logger.info('No objects deleted from bucket {0}:{1}'.format(
-            bucket_name, root_path))
-        return
+    paginator = client.get_paginator('list_objects_v2')
+    pages = paginator.paginate(Bucket=bucket_name, Prefix=root_path)
 
-    # Delete objects under this path prefix
-    delete_keys = {'Objects': key_objects}
-    logger.info('Deleting {0:d} objects from bucket {1}:{2}'.format(
-        len(key_objects), bucket_name, root_path))
-    # based on http://stackoverflow.com/a/34888103
-    r = s3.meta.client.delete_objects(Bucket=bucket.name,
-                                      Delete=delete_keys)
-    logger.info(pformat(r))
-    status_code = r['ResponseMetadata']['HTTPStatusCode']
-    if status_code >= 300:
-        msg = 'S3 could not delete {0} (status {1:d})'.format(
-            root_path, status_code)
-        logger.error(msg)
-        raise S3Error(msg)
+    keys = dict(Objects=[])
+    for item in pages.search('Contents'):
+        keys['Objects'].append({'Key': item['Key']})
+        # Delete immediately when 1000 objects are listed
+        # the delete_objects method can only take a maximum of 1000 keys
+        if len(keys['Objects']) >= 1000:
+            try:
+                client.delete_objects(Bucket=bucket_name, Delete=keys)
+            except Exception:
+                message = 'Error deleting objects from %r' % root_path
+                logger.exception(message)
+                raise S3Error(message)
+            keys = dict(Objects=[])
+
+    # Delete remaining keys
+    if len(keys['Objects']):
+        try:
+            client.delete_objects(Bucket=bucket_name, Delete=keys)
+        except Exception:
+            message = 'Error deleting objects from %r' % root_path
+            logger.exception(message)
+            raise S3Error(message)
