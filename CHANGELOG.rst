@@ -9,6 +9,7 @@ Fixed
 -----
 
 - Fixed a bug where ``ltdconveoyr.s3.delete_dir`` would fail if there are more than 1000 objects under a path prefix that is being deleted.
+- Fixed title of the project in the documentation by updating to use a `Documenteer <https://documenteer.lsst.io>`_\ -based Sphinx set up.
 
 0.4.0 (2018-04-17)
 ==================

@@ -12,7 +12,7 @@ install:
 script:
   - 'pytest'
   # automodapi_toctreedirnm is sensitive to being in docs/ dir; will fix in documenteer
-  - cd docs && sphinx-build -b html -a -W -d _build/doctree . _build/html && cd ../
+  - cd docs && sphinx-build -b html -a -d _build/doctree . _build/html && cd ../
 after_success:
   - 'ltd --log-level debug upload --product "ltd-conveyor" --travis --dir docs/_build/html'
 env:
