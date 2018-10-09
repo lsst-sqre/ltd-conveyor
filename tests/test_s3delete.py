@@ -75,3 +75,9 @@ def test_delete_dir(request):
             assert bucket_path not in bucket_paths
         else:
             assert bucket_path in bucket_paths
+
+    # Attempt to delete an empty prefix. Ensure it does not raise an exception.
+    delete_dir(os.getenv('LTD_TEST_BUCKET'),
+               bucket_root + 'empty-prefix/',
+               os.getenv('LTD_TEST_AWS_ID'),
+               os.getenv('LTD_TEST_AWS_SECRET'))
