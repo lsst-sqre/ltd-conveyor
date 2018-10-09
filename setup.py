@@ -52,11 +52,8 @@ tests_require = [
 
 # Optional/development dependencies
 docs_require = [
-    'Sphinx==1.5.2',
-    'astropy-helpers==3.0.1',
-    'documenteer==0.1.10',
-    'lsst-sphinx-bootstrap-theme==0.1.1',
-    'sphinx-click==1.1.0',
+    'documenteer[pipelines]>=0.3.0,<0.4.0',
+    'sphinx-click>=1.2.0,<1.3.0',
 ]
 extras_require = {
     'dev': docs_require + tests_require
