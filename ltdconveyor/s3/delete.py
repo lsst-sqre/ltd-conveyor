@@ -53,7 +53,10 @@ def delete_dir(bucket_name, root_path,
 
     keys = dict(Objects=[])
     for item in pages.search('Contents'):
-        keys['Objects'].append({'Key': item['Key']})
+        try:
+            keys['Objects'].append({'Key': item['Key']})
+        except TypeError:  # item is None; nothing to delete
+            continue
         # Delete immediately when 1000 objects are listed
         # the delete_objects method can only take a maximum of 1000 keys
         if len(keys['Objects']) >= 1000:
@@ -66,7 +69,7 @@ def delete_dir(bucket_name, root_path,
             keys = dict(Objects=[])
 
     # Delete remaining keys
-    if len(keys['Objects']):
+    if len(keys['Objects']) > 0:
         try:
             client.delete_objects(Bucket=bucket_name, Delete=keys)
         except Exception:

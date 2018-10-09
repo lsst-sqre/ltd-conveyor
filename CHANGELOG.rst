@@ -2,14 +2,22 @@
 Change log
 ##########
 
+0.4.2 (2018-10-09)
+==================
+
+Fixed
+-----
+
+- Fixed a bug where ``ltdconveyor.s3.delete_dir``, since 0.4.1, would raise a ``TypeError`` while deleting an empty directory (no objects in the S3 prefix).
+
 0.4.1 (2018-10-08)
 ==================
 
 Fixed
 -----
 
-- Fixed a bug where ``ltdconveoyr.s3.delete_dir`` would fail if there are more than 1000 objects under a path prefix that is being deleted.
-- Fixed title of the project in the documentation by updating to use a `Documenteer <https://documenteer.lsst.io>`_\ -based Sphinx set up.
+- Fixed a bug where ``ltdconveyor.s3.delete_dir`` would fail if there are more than 1000 objects under a path prefix that is being deleted.
+- Fixed title of the project in the documentation by updating to use a `Documenteer`_\ -based Sphinx set up.
 
 0.4.0 (2018-04-17)
 ==================
@@ -117,7 +125,7 @@ Added
 .. _LTD Keeper: https://ltd-keeper.lsst.io
 .. _LTD Mason: https://ltd-mason.lsst.io
 .. _LTD Dasher: https://github.com/lsst-sqre/ltd-dasher
-.. _Documenteer: https://github.com/lsst-sqre/documenteer
+.. _Documenteer: https://documenteer.lsst.io
 .. _Click: http://click.pocoo.org/
 .. _sphinx-click: https://sphinx-click.readthedocs.io/en/latest/
 .. _LSST Science Pipelines: https://pipelines.lsst.io
