@@ -46,8 +46,12 @@ def main(ctx, log_level, keeper_hostname, username, password):
     Use ltd to upload new site builds, and to work with the LTD Keeper API.
     """
     ch = logging.StreamHandler()
-    formatter = logging.Formatter(
-        '%(asctime)s %(levelname)8s %(name)s | %(message)s')
+    if log_level in ('warning', 'info'):
+        formatter = logging.Formatter(
+            '%(asctime)s %(levelname)8s | %(message)s')
+    else:
+        formatter = logging.Formatter(
+            '%(asctime)s %(levelname)8s %(name)s | %(message)s')
     ch.setFormatter(formatter)
 
     logger = logging.getLogger('ltdconveyor')
