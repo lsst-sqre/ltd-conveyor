@@ -5,7 +5,8 @@ For more information about S3 presigned POST URLs, see
 https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-presigned-urls.html#generating-a-presigned-url-to-upload-a-file
 """
 
-__all__ = ('prescan_directory', 'upload_dir', 'upload_file')
+__all__ = ('prescan_directory', 'upload_dir', 'upload_file',
+           'upload_directory_objects')
 
 from copy import deepcopy
 import mimetypes
@@ -45,46 +46,6 @@ def prescan_directory(base_dir, _current_dir=None):
     return dirs
 
 
-def upload_dir(*, post_urls, base_dir, _current_dir=None):
-    """Upload a local directory to S3 an LSST the Docs build.
-
-    Parameters
-    ----------
-    post_urls : `dict`
-        This dictionary is obtained from the ``"post_urls"`` field of the
-        ``ltdconveyor.keeper.build.register_build`` function. It contains
-        presigned post POST URLs and fields for each directory in the site
-        being uploaded (see the ``dirnames`` parameter to
-        `~ltdconveyor.keeper.build.register_build`).
-    base_dir : `pathlib.Path`
-        Base directory of the site.
-
-    """
-    logger = logging.getLogger(__name__)
-
-    if _current_dir is None:
-        _current_dir = base_dir
-
-    relative_dir = format_relative_dirname(_current_dir, base_dir)
-    try:
-        post_url = post_urls[relative_dir]
-    except RuntimeError:
-        logger.exception('A presigned POST URL is not available for the '
-                         '%s directory', relative_dir)
-
-    for path in _current_dir.iterdir():
-        if path.is_file():
-            upload_file(
-                local_path=path,
-                post_url=post_url['url'],
-                post_fields=post_url['fields'])
-        elif path.is_dir():
-            upload_dir(
-                post_urls=post_urls,
-                base_dir=base_dir,
-                _current_dir=path)
-
-
 def format_relative_dirname(directory, base_directory):
     """Formats a relative directory path in a way that's compatible with the
     presigned POST URLs.
@@ -114,6 +75,49 @@ def format_relative_dirname(directory, base_directory):
         return name + '/'
     else:
         return name
+
+
+def upload_dir(*, post_urls, base_dir, _current_dir=None):
+    """Upload a local directory of files to S3 for an LSST the Docs build.
+
+    Parameters
+    ----------
+    post_urls : `dict`
+        This dictionary is obtained from the ``"post_prefix_urls"`` field of
+        the ``ltdconveyor.keeper.build.register_build`` function. It contains
+        presigned post POST URLs and fields for each directory in the site
+        being uploaded (see the ``dirnames`` parameter to
+        `~ltdconveyor.keeper.build.register_build`).
+    base_dir : `pathlib.Path`
+        Base directory of the site.
+
+    See also
+    --------
+    upload_directory_objects
+    """
+    logger = logging.getLogger(__name__)
+
+    if _current_dir is None:
+        _current_dir = base_dir
+
+    relative_dir = format_relative_dirname(_current_dir, base_dir)
+    try:
+        post_url = post_urls[relative_dir]
+    except RuntimeError:
+        logger.exception('A presigned POST URL is not available for the '
+                         '%s directory', relative_dir)
+
+    for path in _current_dir.iterdir():
+        if path.is_file():
+            upload_file(
+                local_path=path,
+                post_url=post_url['url'],
+                post_fields=post_url['fields'])
+        elif path.is_dir():
+            upload_dir(
+                post_urls=post_urls,
+                base_dir=base_dir,
+                _current_dir=path)
 
 
 def upload_file(*, local_path, post_url, post_fields):
@@ -161,3 +165,45 @@ def upload_file(*, local_path, post_url, post_fields):
                      'fields %s', local_path, http_response.status_code,
                      post_fields)
         raise S3Error
+
+
+def upload_directory_objects(*, post_urls):
+    """Upload directory redirect objects for an LSST the Docs product build.
+
+    Parameters
+    ----------
+    post_urls : `dict`
+        This dictionary is obtained from the ``"post_dir_urls"`` field of
+        the ``ltdconveyor.keeper.build.register_build`` function. It contains
+        presigned post POST URLs and fields for each directory in the site
+        being uploaded (see the ``dirnames`` parameter to
+        `~ltdconveyor.keeper.build.register_build`).
+
+    See also
+    --------
+    upload_dir
+
+    Notes
+    -----
+    Directory redirect objects in S3 are named after directories, don't have
+    a trailing slash in their key name, and don't have any content. What
+    they *do* have is a ``x-amz-meta-dir-redirect`` header key. The LSST the
+    Docs Fastly configuration looks for this header, and when detected,
+    redirects the request to the associated ``*/index.html`` object.
+    """
+    logger = logging.getLogger(__name__)
+    for dirname, post_url in post_urls.items():
+        url = post_url['url']
+        fields = post_url['fields']
+        files = {'file': ('', '')}
+        http_response = requests.post(url, data=fields, files=files)
+        if http_response.status_code == 204:
+            logger.debug(
+                'Uploaded directory object for %s',
+                dirname)
+        else:
+            logger.error(
+                'Error uploading directory object for %s (code %i) using '
+                'presigned POST URL fields %s', dirname,
+                http_response.status_code, fields)
+            raise S3Error

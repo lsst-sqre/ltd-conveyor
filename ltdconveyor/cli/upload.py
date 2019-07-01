@@ -11,7 +11,8 @@ from pathlib import Path
 import click
 
 from ..keeper.build import register_build, confirm_build
-from ltdconveyor.s3.presignedpost import prescan_directory, upload_dir
+from ltdconveyor.s3.presignedpost import (prescan_directory, upload_dir,
+                                          upload_directory_objects)
 from .utils import ensure_login
 
 
@@ -110,10 +111,15 @@ def upload(ctx, product, git_ref, dirname, ci_env, on_travis_push,
 
     # Do the upload.
     upload_dir(
-        post_urls=build_resource['post_urls'],
+        post_urls=build_resource['post_prefix_urls'],
         base_dir=base_dir
     )
     logger.debug('Upload complete for %r', build_resource['self_url'])
+
+    # Upload directory objects for redirects
+    upload_directory_objects(
+        post_urls=build_resource['post_dir_urls'],
+    )
 
     # Confirm upload
     confirm_build(
