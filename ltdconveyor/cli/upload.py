@@ -120,7 +120,8 @@ def upload(ctx, product, git_ref, dirname, ci_env, on_travis_push,
         build_resource['self_url'],
         ctx.obj['token']
     )
-    logger.debug('Build %r complete', build_resource['self_url'])
+    logger.info('Build %r complete', build_resource['self_url'])
+    logger.info('Published build URL: %s', build_resource['published_url'])
 
 
 def _should_skip_travis_event(on_travis_push, on_travis_pr, on_travis_api,
