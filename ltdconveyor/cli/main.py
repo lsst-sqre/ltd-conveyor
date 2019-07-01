@@ -18,8 +18,8 @@ CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 @click.option(
     '--log-level', 'log_level',
     type=click.Choice(['warning', 'info', 'debug']),
-    default='warning',
-    help='Logging level (for first-party messages). Default: `warning`.'
+    default='info',
+    help='Logging level (for first-party messages). Default: `info`.'
 )
 @click.option(
     '--host', 'keeper_hostname',
