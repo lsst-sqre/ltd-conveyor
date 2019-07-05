@@ -48,6 +48,7 @@ tests_require = [
     'pytest==4.6.3',
     'pytest-cov==2.7.1',
     'pytest-flake8==1.0.4',
+    'pytest-mock==1.10.4',
 ]
 
 # Optional/development dependencies
