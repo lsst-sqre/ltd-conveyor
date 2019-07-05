@@ -12,7 +12,8 @@ import responses
 
 from ltdconveyor.exceptions import ConveyorError
 from ltdconveyor.s3.presignedpost import (
-    format_relative_dirname, prescan_directory, upload_dir, upload_file)
+    format_relative_dirname, prescan_directory, upload_dir, upload_file,
+    upload_directory_objects)
 from ltdconveyor.s3.exceptions import S3Error
 
 
@@ -146,3 +147,30 @@ def test_upload_file_failed():
             local_path=local_path,
             post_url=post_url,
             post_fields=post_fields)
+
+
+@responses.activate
+def test_upload_directory_objects():
+    post_urls = {
+        '/': {
+            'url': 'https://example.com',
+            'fields': {'key': 'bucket/base'}
+        },
+        'a/': {
+            'url': 'https://example.com',
+            'fields': {'key': 'bucket/base/a'}
+        },
+        'a/aa/': {
+            'url': 'https://example.com',
+            'fields': {'key': 'bucket/base/a/aa'}
+        },
+        'b/': {
+            'url': 'https://example.com',
+            'fields': {'key': 'bucket/base/b/{$filename}'}
+        }
+    }
+    responses.add(responses.POST, 'https://example.com', status=204)
+
+    upload_directory_objects(post_urls=post_urls)
+
+    assert len(responses.calls) == 4
