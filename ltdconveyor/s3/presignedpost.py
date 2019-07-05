@@ -15,6 +15,7 @@ import logging
 import requests
 
 from .exceptions import S3Error
+from ..exceptions import ConveyorError
 
 
 def prescan_directory(base_dir, _current_dir=None):
@@ -103,9 +104,10 @@ def upload_dir(*, post_urls, base_dir, _current_dir=None):
     relative_dir = format_relative_dirname(_current_dir, base_dir)
     try:
         post_url = post_urls[relative_dir]
-    except RuntimeError:
+    except KeyError:
         logger.exception('A presigned POST URL is not available for the '
                          '%s directory', relative_dir)
+        raise ConveyorError
 
     for path in _current_dir.iterdir():
         if path.is_file():
