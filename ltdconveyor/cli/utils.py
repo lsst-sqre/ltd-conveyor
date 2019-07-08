@@ -22,7 +22,6 @@ def ensure_login(ctx):
         `ltdconveyor.cli.main.main`.
     """
     logger = logging.getLogger(__name__)
-    logger.info('utils name %r', __name__)
 
     if ctx.obj['token'] is None:
         if ctx.obj['username'] is None or ctx.obj['password'] is None:

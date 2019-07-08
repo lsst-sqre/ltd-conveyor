@@ -6,11 +6,13 @@ __all__ = ('upload',)
 import logging
 import os
 import sys
+from pathlib import Path
 
 import click
 
 from ..keeper.build import register_build, confirm_build
-from ..s3.upload import upload_dir
+from ltdconveyor.s3.presignedpost import (prescan_directory, upload_dir,
+                                          upload_directory_objects)
 from .utils import ensure_login
 
 
@@ -33,18 +35,6 @@ from .utils import ensure_login
     type=click.Path(exists=False, file_okay=False, dir_okay=True),
     help='Directory with files to upload. Default: `.` (current working '
          'directory).'
-)
-@click.option(
-    '--aws-id', 'aws_id',
-    required=True,
-    envvar='LTD_AWS_ID',
-    help='AWS ID (or `$LTD_AWS_ID`).'
-)
-@click.option(
-    '--aws-secret', 'aws_secret',
-    required=True,
-    envvar='LTD_AWS_SECRET',
-    help='AWS secret access key (or `$LTD_AWS_SECRET`).'
 )
 @click.option(
     '--travis', 'ci_env', flag_value='travis',
@@ -79,9 +69,8 @@ from .utils import ensure_login
          'this option or the environment variable $LTD_SKIP_UPLOAD=true.'
 )
 @click.pass_context
-def upload(ctx, product, git_ref, dirname, aws_id, aws_secret, ci_env,
-           on_travis_push, on_travis_pr, on_travis_api, on_travis_cron,
-           skip_upload):
+def upload(ctx, product, git_ref, dirname, ci_env, on_travis_push,
+           on_travis_pr, on_travis_api, on_travis_cron, skip_upload):
     """Upload a new site build to LSST the Docs.
     """
     logger = logging.getLogger(__name__)
@@ -107,36 +96,38 @@ def upload(ctx, product, git_ref, dirname, aws_id, aws_secret, ci_env,
     # Detect git refs
     git_refs = _get_git_refs(ci_env, git_ref)
 
+    # Prescan directory names. Each directory needs a presigned POST URL.
+    base_dir = Path(dirname)
+    dirnames = prescan_directory(base_dir)
+
     build_resource = register_build(
         ctx.obj['keeper_hostname'],
         ctx.obj['token'],
         product,
-        git_refs
+        git_refs,
+        dirnames=dirnames
     )
     logger.debug('Created build resource %r', build_resource)
 
     # Do the upload.
-    # This cache_control is appropriate for builds since they're immutable.
-    # The LTD Keeper server changes the cache settings when copying the build
-    # over to be a mutable edition.
     upload_dir(
-        build_resource['bucket_name'],
-        build_resource['bucket_root_dir'],
-        dirname,
-        aws_access_key_id=aws_id,
-        aws_secret_access_key=aws_secret,
-        surrogate_key=build_resource['surrogate_key'],
-        cache_control='max-age=31536000',
-        surrogate_control=None,
-        upload_dir_redirect_objects=True)
+        post_urls=build_resource['post_prefix_urls'],
+        base_dir=base_dir
+    )
     logger.debug('Upload complete for %r', build_resource['self_url'])
+
+    # Upload directory objects for redirects
+    upload_directory_objects(
+        post_urls=build_resource['post_dir_urls'],
+    )
 
     # Confirm upload
     confirm_build(
         build_resource['self_url'],
         ctx.obj['token']
     )
-    logger.debug('Build %r complete', build_resource['self_url'])
+    logger.info('Build %r complete', build_resource['self_url'])
+    logger.info('Published build URL: %s', build_resource['published_url'])
 
 
 def _should_skip_travis_event(on_travis_push, on_travis_pr, on_travis_api,

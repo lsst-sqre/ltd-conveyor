@@ -2,6 +2,15 @@
 Change log
 ##########
 
+Unreleased
+==========
+
+- LTD Conveyor can now upload new builds to S3 using Amazon's S3's presigned POST URL feature.
+  This means that clients no longer need credentials for S3 — the LTD Keeper API server generates presigned POST URLs as part of the ``POST /products/<product>/builds/`` build registration step.
+- The ``ltd`` command now uses the presigned POST-based URLs.
+- In INFO-level and higher logging, the module path isn't displayed.
+  Module paths are only shown in DEBUG-level logging where it's most useful.
+
 0.4.2 (2018-10-09)
 ==================
 

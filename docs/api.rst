@@ -12,3 +12,6 @@ API reference
 
 .. automodapi:: ltdconveyor.s3
    :no-inheritance-diagram:
+
+.. automodapi:: ltdconveyor.s3.presignedpost
+   :no-inheritance-diagram:

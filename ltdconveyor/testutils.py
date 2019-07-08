@@ -9,7 +9,7 @@ from tempfile import TemporaryDirectory
 
 def upload_test_files(file_paths, bucket, bucket_root,
                       surrogate_key, cache_control, content_type):
-    """Create and upload files to S3 as specified by their paths alone.
+    r"""Create and upload files to S3 as specified by their paths alone.
 
     This is useful for specifying a filesystem tree, and seeing if Conveyor's
     S3 interactions maintain or manipulate that tree properly.
