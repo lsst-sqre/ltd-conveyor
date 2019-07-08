@@ -23,7 +23,7 @@ def prescan_directory(base_dir, _current_dir=None):
     directory.
 
     This function is used to the LTD Keeper API what presigned POST URLs to
-    create for a build (see `ltdconveyor.keeper.build.register_build`).
+    create for a build (see `ltdconveyor.keeper.register_build`).
 
     Parmameters
     -----------
@@ -85,10 +85,10 @@ def upload_dir(*, post_urls, base_dir, _current_dir=None):
     ----------
     post_urls : `dict`
         This dictionary is obtained from the ``"post_prefix_urls"`` field of
-        the ``ltdconveyor.keeper.build.register_build`` function. It contains
+        the `ltdconveyor.keeper.register_build` function. It contains
         presigned post POST URLs and fields for each directory in the site
         being uploaded (see the ``dirnames`` parameter to
-        `~ltdconveyor.keeper.build.register_build`).
+        `~ltdconveyor.keeper.register_build`).
     base_dir : `pathlib.Path`
         Base directory of the site.
 
@@ -127,8 +127,8 @@ def upload_file(*, local_path, post_url, post_fields):
 
     This function should primarily be used by `upload_dir`.
 
-    Parameter
-    ---------
+    Parameters
+    ----------
     local_path : `pathlib.Path`
         Path to the file being uploaded.
     post_url : `str`
@@ -176,10 +176,10 @@ def upload_directory_objects(*, post_urls):
     ----------
     post_urls : `dict`
         This dictionary is obtained from the ``"post_dir_urls"`` field of
-        the ``ltdconveyor.keeper.build.register_build`` function. It contains
+        the `ltdconveyor.keeper.register_build` function. It contains
         presigned post POST URLs and fields for each directory in the site
         being uploaded (see the ``dirnames`` parameter to
-        `~ltdconveyor.keeper.build.register_build`).
+        `~ltdconveyor.keeper.register_build`).
 
     See also
     --------
