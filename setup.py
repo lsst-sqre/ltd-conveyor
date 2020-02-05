@@ -38,7 +38,6 @@ install_requires = [
 
 # Setup dependencies
 setup_requires = [
-    'pytest-runner>=2.11.1,<3',
     'setuptools_scm'
 ]
 
