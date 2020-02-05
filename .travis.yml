@@ -3,8 +3,6 @@ dist: xenial
 language: python
 jobs:
     include:
-      - python: "3.5"
-        env: PYPI_DEPLOY=true LTD_SKIP_UPLOAD=true
       - python: "3.6"
         env: PYPI_DEPLOY=true LTD_SKIP_UPLOAD=true
       # Use the Python 3.7 build for PyPI deployments and doc uploads
