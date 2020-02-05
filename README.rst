@@ -6,7 +6,7 @@ LSST the Docs: Conveyor
    :target: https://pypi.python.org/pypi/ltd-conveyor
    :alt: Python Package Index
 .. image:: https://img.shields.io/travis/lsst-sqre/ltd-conveyor.svg
-   :target: https://travis-ci.org/lsst-sqre/ltd-conveyor
+   :target: https://travis-ci.com/lsst-sqre/ltd-conveyor
    :alt: Travis CI build status
 .. image:: https://img.shields.io/badge/ltd--conveyor-lsst.io-brightgreen.svg
    :target: https://ltd-conveyor.lsst.io

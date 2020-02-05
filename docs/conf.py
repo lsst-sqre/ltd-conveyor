@@ -39,7 +39,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'LTD Conveyor'
-copyright = '2017-2019 Association of Universities for Research in Astronomy'
+copyright = '2017-2020 Association of Universities for Research in Astronomy, Inc. (AURA)'
 author = 'LSST Data Management'
 
 # The version info for the project you're documenting, acts as replacement for
