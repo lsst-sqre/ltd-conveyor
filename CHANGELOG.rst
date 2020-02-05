@@ -2,14 +2,30 @@
 Change log
 ##########
 
-Unreleased
-==========
+0.5.0 (2020-02-05)
+==================
+
+Added
+-----
 
 - LTD Conveyor can now upload new builds to S3 using Amazon's S3's presigned POST URL feature.
   This means that clients no longer need credentials for S3 — the LTD Keeper API server generates presigned POST URLs as part of the ``POST /products/<product>/builds/`` build registration step.
 - The ``ltd`` command now uses the presigned POST-based URLs.
+  The ``--aws-id`` and ``--aws-secret`` options have been removed, but the ``--user`` and ``--password`` options remain.
+
+  If you use environment variables, there should be no change in how you use ``ltd upload`` (aside from not needing the ``$LTD_AWS_ID`` and ``$LTD_AWS_SECRET`` environment variables).
+
+Fixed
+-----
+
 - In INFO-level and higher logging, the module path isn't displayed.
   Module paths are only shown in DEBUG-level logging where it's most useful.
+
+Infrastructure
+--------------
+
+- Packaging is now done through a ``setup.cfg`` file and a ``pyproject.toml`` file (PEP 518).
+- Updated Travis CI configuration to test with Python 3.8; also refactored the CI Pipeline with Travis CI stages.
 
 0.4.2 (2018-10-09)
 ==================
