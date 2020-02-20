@@ -5,6 +5,7 @@ __all__ = ('upload',)
 
 import logging
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -23,18 +24,23 @@ from .utils import ensure_login
     help='Product name.'
 )
 @click.option(
-    '--git-ref',
-    help='Git ref, or space-delimited list of git refs. This versions the '
-         'build and helps LTD Keeper assign the build to an edition. '
-         'Alternatively, version information can be auto-discovered by '
-         'setting --travis in a Travis CI job.'
-)
-@click.option(
     '--dir', 'dirname',
     default='.',
     type=click.Path(exists=False, file_okay=False, dir_okay=True),
     help='Directory with files to upload. Default: `.` (current working '
          'directory).'
+)
+@click.option(
+    '--git-ref',
+    help='Git ref, or space-delimited list of git refs. This versions the '
+         'build and helps LTD Keeper assign the build to an edition. '
+         'Alternatively, version information can be auto-discovered by '
+         'setting --travis in a Travis CI job or --gh for GitHub actions.'
+)
+@click.option(
+    '--gh', 'ci_env', flag_value='gh',
+    help='Use environment variables from a GitHub Actions environment to set '
+         'the --git-ref option.'
 )
 @click.option(
     '--travis', 'ci_env', flag_value='travis',
@@ -167,6 +173,9 @@ def _get_git_refs(ci_env, user_git_ref):
     if ci_env == 'travis' and user_git_ref is None:
         # Get git refs from Travis environment
         git_refs = _get_travis_git_refs()
+    elif ci_env == 'gh' and user_git_ref is None:
+        # Get git refs from GitHub Actions environment
+        git_refs = _get_gh_actions_git_refs()
     elif user_git_ref is not None:
         # Get git refs from command line
         git_refs = user_git_ref.split()
@@ -182,3 +191,22 @@ def _get_travis_git_refs():
             'Using --travis but the TRAVIS_BRANCH environment variable is '
             'not detected.')
     return git_refs
+
+
+def _get_gh_actions_git_refs():
+    github_ref = os.getenv('GITHUB_REF')
+    if github_ref is None:
+        raise click.UsageError(
+            'Using --gh but the GITHUB_REF environment variable is '
+            'not detected.')
+    match = re.match(
+        r"refs/heads/(?P<ref>.+)",
+        github_ref
+    )
+    if not match:
+        raise click.UsageError(
+            'Could not parse the GITHUB_REF environment variable: {0}'.format(
+                github_ref)
+        )
+    ref = match.group("ref")
+    return [ref]

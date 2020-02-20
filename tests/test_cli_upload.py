@@ -6,7 +6,8 @@ import pytest
 
 from ltdconveyor.cli.upload import (_should_skip_travis_event,
                                     _get_git_refs,
-                                    _get_travis_git_refs)
+                                    _get_travis_git_refs,
+                                    _get_gh_actions_git_refs)
 
 
 @pytest.mark.parametrize(
@@ -53,13 +54,34 @@ def test_get_travis_git_refs_no_env_var(monkeypatch):
         _get_travis_git_refs()
 
 
+def test_get_gh_actions_git_refs(monkeypatch):
+    import os
+
+    monkeypatch.setattr(os, 'getenv', lambda _: 'refs/heads/my_branch')
+
+    assert _get_gh_actions_git_refs() == ['my_branch']
+
+
+def test_get_gh_actions_git_refs_no_env_var(monkeypatch):
+    import os
+
+    monkeypatch.setattr(os, 'getenv', lambda _: None)
+
+    with pytest.raises(click.UsageError):
+        _get_gh_actions_git_refs()
+
+
 @pytest.mark.parametrize(
-    'travis_branch_var,ci_env,user_git_ref,expected',
+    'env_var,ci_env,user_git_ref,expected',
     [
         # using travis branch
         ('my_branch', 'travis', None, ['my_branch']),
         # overriding travis on command line
         ('my_branch', 'travis', 'user-branch', ['user-branch']),
+        # using GitHub actions branch
+        ('refs/heads/my_branch', 'gh', None, ['my_branch']),
+        # overriding GitHub actions on command line
+        ('refs/heads/my_branch', 'gh', 'user-branch', ['user-branch']),
         # only using command line arg
         ('my_branch', None, 'user-branch', ['user-branch']),
         (None, None, 'user-branch', ['user-branch']),
@@ -67,10 +89,10 @@ def test_get_travis_git_refs_no_env_var(monkeypatch):
         (None, None, 'a b   c', ['a', 'b', 'c']),
     ]
 )
-def test_get_git_refs(monkeypatch, travis_branch_var, ci_env, user_git_ref,
+def test_get_git_refs(monkeypatch, env_var, ci_env, user_git_ref,
                       expected):
     import os
 
-    monkeypatch.setattr(os, 'getenv', lambda _: travis_branch_var)
+    monkeypatch.setattr(os, 'getenv', lambda _: env_var)
 
     assert _get_git_refs(ci_env, user_git_ref) == expected
