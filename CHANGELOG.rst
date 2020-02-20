@@ -2,6 +2,14 @@
 Change log
 ##########
 
+0.6.0 (2020-02-20)
+==================
+
+Added
+-----
+
+- Added a ``--gh`` option to the ``ltd upload`` command to support usage in `GitHub Actions <https://help.github.com/en/actions>`__.
+
 0.5.0 (2020-02-05)
 ==================
 
