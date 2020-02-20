@@ -8,7 +8,7 @@ Key features:
 
 - :doc:`ltd <cli>` command-line app.
 
-  The :program:`ltd upload` subcommand makes it easy to integrate documentation uploads with continuous integration jobs, particularly Travis CI.
+  The :program:`ltd upload` subcommand makes it easy to integrate documentation uploads with continuous integration jobs, particularly GitHub Actions and Travis CI.
 
 - The `ltdconveyor` Python package provides APIs for working with LSST the Docs.
 
