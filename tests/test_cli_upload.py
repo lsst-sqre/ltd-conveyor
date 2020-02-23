@@ -80,6 +80,8 @@ def test_get_gh_actions_git_refs_no_env_var(monkeypatch):
         ('my_branch', 'travis', 'user-branch', ['user-branch']),
         # using GitHub actions branch
         ('refs/heads/my_branch', 'gh', None, ['my_branch']),
+        ('refs/tags/my_tag', 'gh', None, ['my_tag']),
+        ('refs/pull/my_pr', 'gh', None, ['my_pr']),
         # overriding GitHub actions on command line
         ('refs/heads/my_branch', 'gh', 'user-branch', ['user-branch']),
         # only using command line arg
