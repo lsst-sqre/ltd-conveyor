@@ -2,6 +2,14 @@
 Change log
 ##########
 
+0.6.1 (2020-02-23)
+==================
+
+Fixed
+-----
+
+- The ``--gh`` option for ``ltd upload`` now supports tag and PR events, in addition to branches.
+
 0.6.0 (2020-02-20)
 ==================
 

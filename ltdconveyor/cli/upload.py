@@ -200,7 +200,7 @@ def _get_gh_actions_git_refs():
             'Using --gh but the GITHUB_REF environment variable is '
             'not detected.')
     match = re.match(
-        r"refs/heads/(?P<ref>.+)",
+        r"refs/(heads|tags|pull)/(?P<ref>.+)",
         github_ref
     )
     if not match:
