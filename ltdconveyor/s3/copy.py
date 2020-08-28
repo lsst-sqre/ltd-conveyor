@@ -1,20 +1,27 @@
 """Copy an S3 directory to another prefix in the same bucket.
 """
 
-__all__ = ('copy_dir',)
+__all__ = ("copy_dir",)
 
 import os
+
 import boto3
 
 from .delete import delete_dir
 
 
-def copy_dir(bucket_name, src_path, dest_path,
-             aws_access_key_id=None, aws_secret_access_key=None,
-             aws_profile=None,
-             surrogate_key=None, cache_control=None,
-             surrogate_control=None,
-             create_directory_redirect_object=True):
+def copy_dir(
+    bucket_name,
+    src_path,
+    dest_path,
+    aws_access_key_id=None,
+    aws_secret_access_key=None,
+    aws_profile=None,
+    surrogate_key=None,
+    cache_control=None,
+    surrogate_control=None,
+    create_directory_redirect_object=True,
+):
     """Copy objects from one directory in a bucket to another directory in
     the same bucket.
 
@@ -76,31 +83,35 @@ def copy_dir(bucket_name, src_path, dest_path,
     RuntimeError
         Thrown when the source and destination directories are the same.
     """
-    if not src_path.endswith('/'):
-        src_path += '/'
-    if not dest_path.endswith('/'):
-        dest_path += '/'
+    if not src_path.endswith("/"):
+        src_path += "/"
+    if not dest_path.endswith("/"):
+        dest_path += "/"
 
     # Ensure the src_path and dest_path don't contain each other
     common_prefix = os.path.commonprefix([src_path, dest_path])
     if common_prefix == src_path:
-        msg = 'Common prefix {0} is same as source dir {1}'.format(
-            common_prefix, src_path)
+        msg = "Common prefix {0} is same as source dir {1}".format(
+            common_prefix, src_path
+        )
         raise RuntimeError(msg)
     if common_prefix == dest_path:
-        msg = 'Common prefix {0} is same as dest dir {1}'.format(
-            common_prefix, dest_path)
+        msg = "Common prefix {0} is same as dest dir {1}".format(
+            common_prefix, dest_path
+        )
         raise RuntimeError(msg)
 
     # Delete any existing objects in the destination
-    delete_dir(bucket_name, dest_path,
-               aws_access_key_id, aws_secret_access_key)
+    delete_dir(
+        bucket_name, dest_path, aws_access_key_id, aws_secret_access_key
+    )
 
     session = boto3.session.Session(
         aws_access_key_id=aws_access_key_id,
         aws_secret_access_key=aws_secret_access_key,
-        profile_name=aws_profile)
-    s3 = session.resource('s3')
+        profile_name=aws_profile,
+    )
+    s3 = session.resource("s3")
     bucket = s3.Bucket(bucket_name)
 
     # Copy each object from source to destination
@@ -109,36 +120,38 @@ def copy_dir(bucket_name, src_path, dest_path,
         dest_key_path = os.path.join(dest_path, src_rel_path)
 
         # the src_obj (ObjectSummary) doesn't include headers afaik
-        head = s3.meta.client.head_object(Bucket=bucket_name,
-                                          Key=src_obj.key)
-        metadata = head['Metadata']
-        content_type = head['ContentType']
+        head = s3.meta.client.head_object(Bucket=bucket_name, Key=src_obj.key)
+        metadata = head["Metadata"]
+        content_type = head["ContentType"]
 
         # try to use original Cache-Control header if new one is not set
-        if cache_control is None and 'CacheControl' in head:
-            cache_control = head['CacheControl']
+        if cache_control is None and "CacheControl" in head:
+            cache_control = head["CacheControl"]
 
         if surrogate_control is not None:
-            metadata['surrogate-control'] = surrogate_control
+            metadata["surrogate-control"] = surrogate_control
 
         if surrogate_key is not None:
-            metadata['surrogate-key'] = surrogate_key
+            metadata["surrogate-key"] = surrogate_key
 
         s3.meta.client.copy_object(
             Bucket=bucket_name,
             Key=dest_key_path,
-            CopySource={'Bucket': bucket_name, 'Key': src_obj.key},
-            MetadataDirective='REPLACE',
+            CopySource={"Bucket": bucket_name, "Key": src_obj.key},
+            MetadataDirective="REPLACE",
             Metadata=metadata,
-            ACL='public-read',
+            ACL="public-read",
             CacheControl=cache_control,
-            ContentType=content_type)
+            ContentType=content_type,
+        )
 
     if create_directory_redirect_object:
-        dest_dirname = dest_path.rstrip('/')
+        dest_dirname = dest_path.rstrip("/")
         obj = bucket.Object(dest_dirname)
-        metadata = {'dir-redirect': 'true'}
-        obj.put(Body='',
-                ACL='public-read',
-                Metadata=metadata,
-                CacheControl=cache_control)
+        metadata = {"dir-redirect": "true"}
+        obj.put(
+            Body="",
+            ACL="public-read",
+            Metadata=metadata,
+            CacheControl=cache_control,
+        )

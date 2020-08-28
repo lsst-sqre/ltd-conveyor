@@ -109,7 +109,7 @@ Changed
   It turns out that not all IAM users with ``PutObject`` permissions also have permissions to set the ``ACL`` for an object.
   We want to make it possible for many lightweight IAM users to upload to restricted sub-directories of the ``lsst-the-docs`` bucket, but it seems hard to make these users ACL grantees too.
   We now seek an alternative:
-  
+
   - The ``lsst-the-docs`` bucket now has a PublicRead *bucket* policy
   - No ACL is set on individual objects.
 

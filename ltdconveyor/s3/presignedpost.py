@@ -5,17 +5,21 @@ For more information about S3 presigned POST URLs, see
 https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-presigned-urls.html#generating-a-presigned-url-to-upload-a-file
 """
 
-__all__ = ('prescan_directory', 'upload_dir', 'upload_file',
-           'upload_directory_objects')
+__all__ = (
+    "prescan_directory",
+    "upload_dir",
+    "upload_file",
+    "upload_directory_objects",
+)
 
-from copy import deepcopy
-import mimetypes
 import logging
+import mimetypes
+from copy import deepcopy
 
 import requests
 
-from .exceptions import S3Error
 from ..exceptions import ConveyorError
+from .exceptions import S3Error
 
 
 def prescan_directory(base_dir, _current_dir=None):
@@ -70,10 +74,10 @@ def format_relative_dirname(directory, base_directory):
         - ``"base/a/b`` relative to ``"/base/"`` is ``"a/b/"``.
     """
     name = str(directory.relative_to(base_directory))
-    if name == '.':
-        return '/'
-    elif not name.endswith('/'):
-        return name + '/'
+    if name == ".":
+        return "/"
+    elif not name.endswith("/"):
+        return name + "/"
     else:
         return name
 
@@ -105,21 +109,23 @@ def upload_dir(*, post_urls, base_dir, _current_dir=None):
     try:
         post_url = post_urls[relative_dir]
     except KeyError:
-        logger.exception('A presigned POST URL is not available for the '
-                         '%s directory', relative_dir)
+        logger.exception(
+            "A presigned POST URL is not available for the " "%s directory",
+            relative_dir,
+        )
         raise ConveyorError
 
     for path in _current_dir.iterdir():
         if path.is_file():
             upload_file(
                 local_path=path,
-                post_url=post_url['url'],
-                post_fields=post_url['fields'])
+                post_url=post_url["url"],
+                post_fields=post_url["fields"],
+            )
         elif path.is_dir():
             upload_dir(
-                post_urls=post_urls,
-                base_dir=base_dir,
-                _current_dir=path)
+                post_urls=post_urls, base_dir=base_dir, _current_dir=path
+            )
 
 
 def upload_file(*, local_path, post_url, post_fields):
@@ -149,23 +155,31 @@ def upload_file(*, local_path, post_url, post_fields):
     post_fields = deepcopy(post_fields)
 
     # Detect the Content-Type. This is a required field for the post URL.
-    content_type, content_encoding = mimetypes.guess_type(filename,
-                                                          strict=False)
+    content_type, content_encoding = mimetypes.guess_type(
+        filename, strict=False
+    )
     if content_type is not None:
-        post_fields['Content-Type'] = content_type
+        post_fields["Content-Type"] = content_type
     else:
-        post_fields['Content-Type'] = 'application/octet-stream'
+        post_fields["Content-Type"] = "application/octet-stream"
 
-    with open(local_path, 'rb') as f:
-        files = {'file': (filename, f)}
+    with open(local_path, "rb") as f:
+        files = {"file": (filename, f)}
         http_response = requests.post(post_url, data=post_fields, files=files)
     if http_response.status_code == 204:
-        logger.debug('Uploaded %s using presigned POST URL fields %s',
-                     local_path, post_fields)
+        logger.debug(
+            "Uploaded %s using presigned POST URL fields %s",
+            local_path,
+            post_fields,
+        )
     else:
-        logger.error('Error uploading %s (code %i) using presigned POST URL '
-                     'fields %s', local_path, http_response.status_code,
-                     post_fields)
+        logger.error(
+            "Error uploading %s (code %i) using presigned POST URL "
+            "fields %s",
+            local_path,
+            http_response.status_code,
+            post_fields,
+        )
         raise S3Error
 
 
@@ -195,17 +209,18 @@ def upload_directory_objects(*, post_urls):
     """
     logger = logging.getLogger(__name__)
     for dirname, post_url in post_urls.items():
-        url = post_url['url']
-        fields = post_url['fields']
-        files = {'file': ('', '')}
+        url = post_url["url"]
+        fields = post_url["fields"]
+        files = {"file": ("", "")}
         http_response = requests.post(url, data=fields, files=files)
         if http_response.status_code == 204:
-            logger.debug(
-                'Uploaded directory object for %s',
-                dirname)
+            logger.debug("Uploaded directory object for %s", dirname)
         else:
             logger.error(
-                'Error uploading directory object for %s (code %i) using '
-                'presigned POST URL fields %s', dirname,
-                http_response.status_code, fields)
+                "Error uploading directory object for %s (code %i) using "
+                "presigned POST URL fields %s",
+                dirname,
+                http_response.status_code,
+                fields,
+            )
             raise S3Error

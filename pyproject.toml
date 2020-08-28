@@ -30,4 +30,5 @@ exclude = '''
 include_trailing_comma = true
 multi_line_output = 3
 known_first_party = ["ltdconveyor", "tests"]
+known_third_party = ["boto3", "click", "pkg_resources", "pytest", "requests", "responses", "setuptools", "uritemplate"]
 skip = ["docs/conf.py"]

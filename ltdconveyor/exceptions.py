@@ -1,7 +1,7 @@
 """Exception library.
 """
 
-__all__ = ('ConveyorError',)
+__all__ = ("ConveyorError",)
 
 
 class ConveyorError(Exception):

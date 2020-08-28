@@ -1,7 +1,7 @@
 """Command-line interface ``ltd`` as a Click application.
 """
 
-__all__ = ('main',)
+__all__ = ("main",)
 
 import logging
 
@@ -9,34 +9,39 @@ import click
 
 from .upload import upload
 
-
 # Add -h as a help shortcut option
-CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
+CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 
 @click.group(context_settings=CONTEXT_SETTINGS)
 @click.option(
-    '--log-level', 'log_level',
-    type=click.Choice(['warning', 'info', 'debug']),
-    default='info',
-    help='Logging level (for first-party messages). Default: `info`.'
+    "--log-level",
+    "log_level",
+    type=click.Choice(["warning", "info", "debug"]),
+    default="info",
+    help="Logging level (for first-party messages). Default: `info`.",
 )
 @click.option(
-    '--host', 'keeper_hostname',
-    default='https://keeper.lsst.codes',
-    envvar='LTD_HOST',
-    help='Hostname of the LTD Keeper API (or `$LTD_HOST`). '
-         'Default: `https://keeper.lsst.codes`.'
+    "--host",
+    "keeper_hostname",
+    default="https://keeper.lsst.codes",
+    envvar="LTD_HOST",
+    help="Hostname of the LTD Keeper API (or `$LTD_HOST`). "
+    "Default: `https://keeper.lsst.codes`.",
 )
 @click.option(
-    '-u', '--user', 'username',
-    envvar='LTD_USERNAME',
-    help='Username for LTD Keeper (or `$LTD_USERNAME`).'
+    "-u",
+    "--user",
+    "username",
+    envvar="LTD_USERNAME",
+    help="Username for LTD Keeper (or `$LTD_USERNAME`).",
 )
 @click.option(
-    '-p', '--password', 'password',
-    envvar='LTD_PASSWORD',
-    help='Password for LTD Keeper (or `$LTD_PASSWORD`).'
+    "-p",
+    "--password",
+    "password",
+    envvar="LTD_PASSWORD",
+    help="Password for LTD Keeper (or `$LTD_PASSWORD`).",
 )
 @click.version_option()
 @click.pass_context
@@ -46,30 +51,32 @@ def main(ctx, log_level, keeper_hostname, username, password):
     Use ltd to upload new site builds, and to work with the LTD Keeper API.
     """
     ch = logging.StreamHandler()
-    if log_level in ('warning', 'info'):
+    if log_level in ("warning", "info"):
         formatter = logging.Formatter(
-            '%(asctime)s %(levelname)8s | %(message)s')
+            "%(asctime)s %(levelname)8s | %(message)s"
+        )
     else:
         formatter = logging.Formatter(
-            '%(asctime)s %(levelname)8s %(name)s | %(message)s')
+            "%(asctime)s %(levelname)8s %(name)s | %(message)s"
+        )
     ch.setFormatter(formatter)
 
-    logger = logging.getLogger('ltdconveyor')
+    logger = logging.getLogger("ltdconveyor")
     logger.addHandler(ch)
     logger.setLevel(log_level.upper())
 
     # Subcommands should use the click.pass_obj decorator to get this
     # ctx.obj object as the first argument.
     ctx.obj = {
-        'keeper_hostname': keeper_hostname,
-        'username': username,
-        'password': password,
-        'token': None
+        "keeper_hostname": keeper_hostname,
+        "username": username,
+        "password": password,
+        "token": None,
     }
 
 
 @main.command()
-@click.argument('topic', default=None, required=False, nargs=1)
+@click.argument("topic", default=None, required=False, nargs=1)
 @click.pass_context
 def help(ctx, topic, **kw):
     """Show help for any command.

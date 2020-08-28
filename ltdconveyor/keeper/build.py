@@ -1,7 +1,7 @@
 """Register and confirm new build uploads with the LTD Keeper API.
 """
 
-__all__ = ('register_build', 'confirm_build')
+__all__ = ("register_build", "confirm_build")
 
 import logging
 from urllib.parse import urljoin
@@ -44,30 +44,25 @@ def register_build(host, keeper_token, product, git_refs, dirnames=None):
     """
     logger = logging.getLogger(__name__)
 
-    data = {
-        'git_refs': git_refs
-    }
+    data = {"git_refs": git_refs}
     if dirnames is not None:
-        data['directories'] = list(dirnames)
+        data["directories"] = list(dirnames)
 
     endpoint_url = uritemplate.expand(
-        urljoin(host, '/products/{p}/builds/'),
-        p=product)
+        urljoin(host, "/products/{p}/builds/"), p=product
+    )
 
     r = requests.post(
         endpoint_url,
-        auth=(keeper_token, ''),
+        auth=(keeper_token, ""),
         json=data,
-        headers={'Accept': 'application/vnd.ltdkeeper.v2+json'}
+        headers={"Accept": "application/vnd.ltdkeeper.v2+json"},
     )
 
     if r.status_code != 201:
         raise KeeperError(r.json())
     build_info = r.json()
-    logger.debug(
-        'Registered a build for product %s:\n%s',
-        product,
-        build_info)
+    logger.debug("Registered a build for product %s:\n%s", product, build_info)
     return build_info
 
 
@@ -89,13 +84,8 @@ def confirm_build(build_url, keeper_token):
     ltdconveyor.keeper.KeeperError
         Raised if there is an error communicating with the LTD Keeper API.
     """
-    data = {
-        'uploaded': True
-    }
+    data = {"uploaded": True}
 
-    r = requests.patch(
-        build_url,
-        auth=(keeper_token, ''),
-        json=data)
+    r = requests.patch(build_url, auth=(keeper_token, ""), json=data)
     if r.status_code != 200:
         raise KeeperError(r)

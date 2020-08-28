@@ -23,29 +23,32 @@ def ensure_login(ctx):
     """
     logger = logging.getLogger(__name__)
 
-    if ctx.obj['token'] is None:
-        if ctx.obj['username'] is None or ctx.obj['password'] is None:
+    if ctx.obj["token"] is None:
+        if ctx.obj["username"] is None or ctx.obj["password"] is None:
             raise click.UsageError(
-                'Use `ltd -u <username> -p <password> COMMAND` to '
-                'authenticate to the LTD Keeper server.')
+                "Use `ltd -u <username> -p <password> COMMAND` to "
+                "authenticate to the LTD Keeper server."
+            )
             sys.exit(1)
 
         logger.debug(
-            'About to get token for user %s at %s',
-            ctx.obj['username'],
-            ctx.obj['keeper_hostname'])
+            "About to get token for user %s at %s",
+            ctx.obj["username"],
+            ctx.obj["keeper_hostname"],
+        )
 
         token = get_keeper_token(
-            ctx.obj['keeper_hostname'],
-            ctx.obj['username'],
-            ctx.obj['password'])
-        ctx.obj['token'] = token
+            ctx.obj["keeper_hostname"],
+            ctx.obj["username"],
+            ctx.obj["password"],
+        )
+        ctx.obj["token"] = token
 
         logger.debug(
-            'Got token for user %s at %s',
-            ctx.obj['username'],
-            ctx.obj['keeper_hostname'])
+            "Got token for user %s at %s",
+            ctx.obj["username"],
+            ctx.obj["keeper_hostname"],
+        )
 
     else:
-        logger.debug(
-            'Token already exists.')
+        logger.debug("Token already exists.")
