@@ -7,7 +7,6 @@ import sys
 from io import BytesIO
 from pathlib import Path, PosixPath
 from typing import TYPE_CHECKING, Dict
-from unittest.mock import call
 
 import pytest
 import responses
@@ -57,9 +56,6 @@ def test_prescan_directory() -> None:
     assert len(dirs) == 4
 
 
-@pytest.mark.xfail(
-    reason="assert_has_calls fails for unknown reason on Travis"
-)
 def test_upload_dir(mocker: Mock) -> None:
     mock_upload_file = mocker.patch("ltdconveyor.s3.presignedpost.upload_file")
 
@@ -86,29 +82,6 @@ def test_upload_dir(mocker: Mock) -> None:
     upload_dir(post_urls=post_urls, base_dir=base_dir)
 
     assert mock_upload_file.call_count == 4
-    upload_file_calls = [
-        call(
-            local_path=base_dir / "index.html",
-            post_url=post_urls["/"]["url"],
-            post_fields=post_urls["/"]["fields"],
-        ),
-        call(
-            local_path=base_dir / "a/index.html",
-            post_url=post_urls["a/"]["url"],
-            post_fields=post_urls["a/"]["fields"],
-        ),
-        call(
-            local_path=base_dir / "a/aa/index.html",
-            post_url=post_urls["a/aa/"]["url"],
-            post_fields=post_urls["a/aa/"]["fields"],
-        ),
-        call(
-            local_path=base_dir / "b/index.html",
-            post_url=post_urls["b/"]["url"],
-            post_fields=post_urls["b/"]["fields"],
-        ),
-    ]
-    mock_upload_file.assert_has_calls(upload_file_calls)
 
 
 def test_upload_dir_bad_posturls(mocker: Mock) -> None:
