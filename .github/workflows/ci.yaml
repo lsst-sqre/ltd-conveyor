@@ -24,6 +24,10 @@ jobs:
         run: pip install tox
 
       - name: Run tox
+        env:
+          LTD_TEST_AWS_ID: ${{ secrets.LTD_TEST_AWS_ID }}
+          LTD_TEST_AWS_SECRET: ${{ secrets.LTD_TEST_AWS_SECRET }}
+          LTD_TEST_BUCKET: ${{ secrets.LTD_TEST_BUCKET }}
         run: tox -e py,lint,typing  # run tox using Python in path
 
   docs:
