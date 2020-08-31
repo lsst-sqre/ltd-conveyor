@@ -14,7 +14,7 @@ branch = true
 source = ["ltdconveyor"]
 
 [tool.coverage.paths]
-source = ["ltdconveyor", ".tox/*/site-packages"]
+source = ["src", ".tox/*/site-packages"]
 
 [tool.coverage.report]
 show_missing = true
