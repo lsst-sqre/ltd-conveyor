@@ -5,24 +5,32 @@ For more information about S3 presigned POST URLs, see
 https://boto3.amazonaws.com/v1/documentation/api/latest/guide/s3-presigned-urls.html#generating-a-presigned-url-to-upload-a-file
 """
 
-__all__ = (
-    "prescan_directory",
-    "upload_dir",
-    "upload_file",
-    "upload_directory_objects",
-)
+from __future__ import annotations
 
 import logging
 import mimetypes
 from copy import deepcopy
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import requests
 
-from ..exceptions import ConveyorError
-from .exceptions import S3Error
+from ltdconveyor.exceptions import ConveyorError
+from ltdconveyor.s3.exceptions import S3Error
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+__all__ = [
+    "prescan_directory",
+    "upload_dir",
+    "upload_file",
+    "upload_directory_objects",
+]
 
 
-def prescan_directory(base_dir, _current_dir=None):
+def prescan_directory(
+    base_dir: Path, _current_dir: Optional[Path] = None
+) -> List[str]:
     """Make a list of all directories in a site, including the root
     directory.
 
@@ -51,7 +59,7 @@ def prescan_directory(base_dir, _current_dir=None):
     return dirs
 
 
-def format_relative_dirname(directory, base_directory):
+def format_relative_dirname(directory: Path, base_directory: Path) -> str:
     """Formats a relative directory path in a way that's compatible with the
     presigned POST URLs.
 
@@ -82,7 +90,9 @@ def format_relative_dirname(directory, base_directory):
         return name
 
 
-def upload_dir(*, post_urls, base_dir, _current_dir=None):
+def upload_dir(
+    *, post_urls: Dict[str, Any], base_dir: Path, _current_dir: Path = None
+) -> None:
     """Upload a local directory of files to S3 for an LSST the Docs build.
 
     Parameters
@@ -128,7 +138,9 @@ def upload_dir(*, post_urls, base_dir, _current_dir=None):
             )
 
 
-def upload_file(*, local_path, post_url, post_fields):
+def upload_file(
+    *, local_path: Path, post_url: str, post_fields: Dict[str, Any]
+) -> None:
     """Upload a file using a presigned POST URL to S3.
 
     This function should primarily be used by `upload_dir`.
@@ -183,7 +195,7 @@ def upload_file(*, local_path, post_url, post_fields):
         raise S3Error
 
 
-def upload_directory_objects(*, post_urls):
+def upload_directory_objects(*, post_urls: Dict[str, Any]) -> None:
     """Upload directory redirect objects for an LSST the Docs product build.
 
     Parameters

@@ -1,4 +1,4 @@
-"""Tests for ltdconveyor.s3upload.upload_dir
+"""Tests for ``ltdconveyor.s3upload.upload_dir``.
 
 These tests required the following environment variables:
 
@@ -17,18 +17,24 @@ Note that this test will create a random uuid4) directory at the root of
 ``LTD_TEST_BUCKET``, though the test harness will attempt to delete it.
 """
 
+from __future__ import annotations
+
 import logging
 import mimetypes
 import os
 import shutil
 import tempfile
 import uuid
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence
 
 import boto3
 import pytest
 import requests
 
 from ltdconveyor.s3 import upload_dir
+
+if TYPE_CHECKING:
+    from _pytest.fixtures import FixtureRequest
 
 log = logging.getLogger(__name__)
 
@@ -41,18 +47,19 @@ log = logging.getLogger(__name__)
     "LTD_TEST_AWS_SECRET and "
     "LTD_TEST_BUCKET",
 )
-def test_upload_dir(request):
+def test_upload_dir(request: FixtureRequest) -> None:
     """Integration test of upload_dir and synchronnization upon file deletes.
 
     This is a test that operates more as an integrations test than a unit
     test.
     """
-    bucket_name = os.getenv("LTD_TEST_BUCKET")
-    aws_credentials = {
-        "aws_access_key_id": os.getenv("LTD_TEST_AWS_ID"),
-        "aws_secret_access_key": os.getenv("LTD_TEST_AWS_SECRET"),
-    }
-    session = boto3.session.Session(**aws_credentials)
+    bucket_name = os.getenv("LTD_TEST_BUCKET", "")
+    aws_access_key_id = os.getenv("LTD_TEST_AWS_ID", "")
+    aws_secret_access_key = os.getenv("LTD_TEST_AWS_SECRET", "")
+    session = boto3.session.Session(
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+    )
 
     logging.basicConfig(level=logging.ERROR)
 
@@ -73,7 +80,7 @@ def test_upload_dir(request):
     temp_dir = tempfile.mkdtemp()
     temp_bucket_dir = str(uuid.uuid4())
 
-    def cleanup():
+    def cleanup() -> None:
         print("Cleaning up the bucket")
         _clean_bucket(session, bucket_name, temp_bucket_dir)
 
@@ -90,7 +97,8 @@ def test_upload_dir(request):
         surrogate_key=surrogate_key,
         upload_dir_redirect_objects=True,
         cache_control="max-age={0:d}".format(cache_control_max_age),
-        **aws_credentials,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
     )
 
     _test_objects_exist(session, bucket_name, temp_bucket_dir, paths)
@@ -112,18 +120,24 @@ def test_upload_dir(request):
     os.remove(os.path.join(temp_dir, "file2.txt"))
     paths.remove("file2.txt")
 
-    upload_dir(bucket_name, temp_bucket_dir, temp_dir, **aws_credentials)
+    upload_dir(
+        bucket_name,
+        temp_bucket_dir,
+        temp_dir,
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
+    )
     _test_objects_exist(session, bucket_name, temp_bucket_dir, paths)
 
     shutil.rmtree(temp_dir)
 
 
-def _create_test_files(temp_dir, file_list):
+def _create_test_files(temp_dir: str, file_list: List[str]) -> None:
     for path in file_list:
         _write_file(temp_dir, path)
 
 
-def _write_file(root_dir, rel_path):
+def _write_file(root_dir: str, rel_path: str) -> None:
     filepath = os.path.join(root_dir, rel_path)
     try:
         os.makedirs(os.path.dirname(filepath))
@@ -135,7 +149,12 @@ def _write_file(root_dir, rel_path):
         f.write("Content of {0}".format(os.path.basename(filepath)))
 
 
-def _test_objects_exist(session, bucket_name, bucket_root, file_list):
+def _test_objects_exist(
+    session: boto3.session.Session,
+    bucket_name: str,
+    bucket_root: str,
+    file_list: List[str],
+) -> None:
     s3 = session.resource("s3")
     bucket = s3.Bucket(bucket_name)
 
@@ -160,7 +179,12 @@ def _test_objects_exist(session, bucket_name, bucket_root, file_list):
             assert False
 
 
-def _test_headers(session, bucket_name, bucket_root, expected_headers):
+def _test_headers(
+    session: boto3.session.Session,
+    bucket_name: str,
+    bucket_root: str,
+    expected_headers: Dict[str, str],
+) -> None:
     """Generically test that header key-value pairs in `expected_headers`
     actually are served by S3.
     """
@@ -182,7 +206,9 @@ def _test_headers(session, bucket_name, bucket_root, expected_headers):
             assert r.headers[key] == expected_value
 
 
-def _test_content_types(session, bucket_name, bucket_root):
+def _test_content_types(
+    session: boto3.session.Session, bucket_name: str, bucket_root: str
+) -> None:
     """Verify that the expected Content-Type header was set."""
     s3 = session.resource("s3")
     bucket = s3.Bucket(bucket_name)
@@ -205,7 +231,9 @@ def _test_content_types(session, bucket_name, bucket_root):
             assert r.headers["content-type"] == guess
 
 
-def _file_list_dirnames(file_list, bucket_root):
+def _file_list_dirnames(
+    file_list: Sequence[str], bucket_root: str
+) -> List[str]:
     dirnames = [bucket_root]
     for path in file_list:
         _d = os.path.dirname(path)
@@ -215,7 +243,12 @@ def _file_list_dirnames(file_list, bucket_root):
     return dirnames
 
 
-def _test_directory_redirects(session, bucket_name, bucket_root, file_list):
+def _test_directory_redirects(
+    session: boto3.session.Session,
+    bucket_name: str,
+    bucket_root: str,
+    file_list: Sequence[str],
+) -> None:
     """Verify that the directory redirect objects exist."""
     # Make a list of all directories, including the root directory
     dirnames = _file_list_dirnames(file_list, bucket_root)
@@ -235,7 +268,9 @@ def _test_directory_redirects(session, bucket_name, bucket_root, file_list):
         assert r.headers["x-amz-meta-dir-redirect"] == "true"
 
 
-def _clean_bucket(session, bucket_name, root_path):
+def _clean_bucket(
+    session: boto3.session.Session, bucket_name: str, root_path: str
+) -> None:
     s3 = session.resource("s3")
     bucket = s3.Bucket(bucket_name)
 
@@ -248,7 +283,7 @@ def _clean_bucket(session, bucket_name, root_path):
     ]
     if len(key_objects) == 0:
         return
-    delete_keys = {"Objects": []}
+    delete_keys: Dict[str, List[Any]] = {"Objects": []}
     delete_keys["Objects"] = key_objects
     # based on http://stackoverflow.com/a/34888103
     s3.meta.client.delete_objects(Bucket=bucket.name, Delete=delete_keys)

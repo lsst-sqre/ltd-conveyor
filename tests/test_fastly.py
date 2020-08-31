@@ -1,5 +1,4 @@
-"""Tests for `ltdconveyor.fastly`.
-"""
+"""Tests for `ltdconveyor.fastly`."""
 
 import uuid
 
@@ -10,7 +9,7 @@ from ltdconveyor.fastly import FastlyError, purge_key
 
 
 @responses.activate
-def test_purge_key():
+def test_purge_key() -> None:
     service_id = "SU1Z0isxPaozGVKXdv0eY"
     api_key = "d3cafb4dde4dbeef"
     surrogate_key = uuid.uuid4().hex
@@ -30,7 +29,7 @@ def test_purge_key():
 
 
 @responses.activate
-def test_purge_key_fail():
+def test_purge_key_fail() -> None:
     service_id = "SU1Z0isxPaozGVKXdv0eY"
     api_key = "d3cafb4dde4dbeef"
     surrogate_key = uuid.uuid4().hex

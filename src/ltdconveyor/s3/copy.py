@@ -1,27 +1,27 @@
-"""Copy an S3 directory to another prefix in the same bucket.
-"""
-
-__all__ = ("copy_dir",)
+"""Copy an S3 directory to another prefix in the same bucket."""
 
 import os
+from typing import Optional
 
 import boto3
 
-from .delete import delete_dir
+from ltdconveyor.s3.delete import delete_dir
+
+__all__ = ["copy_dir"]
 
 
 def copy_dir(
-    bucket_name,
-    src_path,
-    dest_path,
-    aws_access_key_id=None,
-    aws_secret_access_key=None,
-    aws_profile=None,
-    surrogate_key=None,
-    cache_control=None,
-    surrogate_control=None,
-    create_directory_redirect_object=True,
-):
+    bucket_name: str,
+    src_path: str,
+    dest_path: str,
+    aws_access_key_id: Optional[str] = None,
+    aws_secret_access_key: Optional[str] = None,
+    aws_profile: Optional[str] = None,
+    surrogate_key: Optional[str] = None,
+    cache_control: Optional[str] = None,
+    surrogate_control: Optional[str] = None,
+    create_directory_redirect_object: bool = True,
+) -> None:
     """Copy objects from one directory in a bucket to another directory in
     the same bucket.
 

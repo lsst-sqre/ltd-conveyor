@@ -1,18 +1,24 @@
-"""Register and confirm new build uploads with the LTD Keeper API.
-"""
-
-__all__ = ("register_build", "confirm_build")
+"""Register and confirm new build uploads with the LTD Keeper API."""
 
 import logging
+from typing import Any, Dict, Optional, Sequence
 from urllib.parse import urljoin
 
 import requests
 import uritemplate
 
-from .exceptions import KeeperError
+from ltdconveyor.keeper.exceptions import KeeperError
+
+__all__ = ["register_build", "confirm_build"]
 
 
-def register_build(host, keeper_token, product, git_refs, dirnames=None):
+def register_build(
+    host: str,
+    keeper_token: str,
+    product: str,
+    git_refs: Sequence[str],
+    dirnames: Optional[Sequence[str]] = None,
+) -> Dict[str, Any]:
     """Register a new build for a product on LSST the Docs.
 
     Wraps the ``POST /products/{product}/builds/`` **v2 API** endpoint.
@@ -61,12 +67,12 @@ def register_build(host, keeper_token, product, git_refs, dirnames=None):
 
     if r.status_code != 201:
         raise KeeperError(r.json())
-    build_info = r.json()
+    build_info: Dict[str, Any] = r.json()
     logger.debug("Registered a build for product %s:\n%s", product, build_info)
     return build_info
 
 
-def confirm_build(build_url, keeper_token):
+def confirm_build(build_url: str, keeper_token: str) -> None:
     """Confirm a build upload is complete.
 
     Wraps ``PATCH /builds/{build}``.

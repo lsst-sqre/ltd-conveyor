@@ -18,14 +18,20 @@ Note that this test will create a random uuid4) directory at the root of
 it.
 """
 
+from __future__ import annotations
+
 import os
 import uuid
+from typing import TYPE_CHECKING
 
 import boto3
 import pytest
 
 from ltdconveyor.s3 import delete_dir
 from ltdconveyor.testutils import upload_test_files
+
+if TYPE_CHECKING:
+    from _pytest.fixtures import FixtureRequest
 
 
 @pytest.mark.skipif(
@@ -36,23 +42,27 @@ from ltdconveyor.testutils import upload_test_files
     "LTD_TEST_AWS_SECRET and "
     "LTD_TEST_BUCKET",
 )
-def test_delete_dir(request):
+def test_delete_dir(request: FixtureRequest) -> None:
+    test_bucket = os.getenv("LTD_TEST_BUCKET", "")
+    aws_access_key_id = os.getenv("LTD_TEST_AWS_ID", "")
+    aws_secret_access_key = os.getenv("LTD_TEST_AWS_SECRET", "")
+
     session = boto3.session.Session(
-        aws_access_key_id=os.getenv("LTD_TEST_AWS_ID"),
-        aws_secret_access_key=os.getenv("LTD_TEST_AWS_SECRET"),
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
     )
     s3 = session.resource("s3")
     bucket = s3.Bucket(os.getenv("LTD_TEST_BUCKET"))
 
     bucket_root = str(uuid.uuid4()) + "/"
 
-    def cleanup():
+    def cleanup() -> None:
         print("Cleaning up the bucket")
         delete_dir(
-            os.getenv("LTD_TEST_BUCKET"),
+            test_bucket,
             bucket_root,
-            aws_access_key_id=os.getenv("LTD_TEST_AWS_ID"),
-            aws_secret_access_key=os.getenv("LTD_TEST_AWS_SECRET"),
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
         )
 
     request.addfinalizer(cleanup)
@@ -69,10 +79,10 @@ def test_delete_dir(request):
 
     # Delete b/*
     delete_dir(
-        os.getenv("LTD_TEST_BUCKET"),
+        test_bucket,
         bucket_root + "a/b/",
-        aws_access_key_id=os.getenv("LTD_TEST_AWS_ID"),
-        aws_secret_access_key=os.getenv("LTD_TEST_AWS_SECRET"),
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
     )
 
     # Ensure paths outside of that are still available, but paths in b/ are
@@ -92,8 +102,8 @@ def test_delete_dir(request):
 
     # Attempt to delete an empty prefix. Ensure it does not raise an exception.
     delete_dir(
-        os.getenv("LTD_TEST_BUCKET"),
+        test_bucket,
         bucket_root + "empty-prefix/",
-        os.getenv("LTD_TEST_AWS_ID"),
-        os.getenv("LTD_TEST_AWS_SECRET"),
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
     )

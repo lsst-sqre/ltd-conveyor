@@ -1,24 +1,23 @@
-"""ltd upload subcommand.
-"""
-
-__all__ = ("upload",)
+"""ltd upload subcommand."""
 
 import logging
 import os
 import re
 import sys
 from pathlib import Path
+from typing import List, Optional
 
 import click
 
+from ltdconveyor.cli.utils import ensure_login
+from ltdconveyor.keeper.build import confirm_build, register_build
 from ltdconveyor.s3.presignedpost import (
     prescan_directory,
     upload_dir,
     upload_directory_objects,
 )
 
-from ..keeper.build import confirm_build, register_build
-from .utils import ensure_login
+__all__ = ["upload"]
 
 
 @click.command()
@@ -92,19 +91,18 @@ from .utils import ensure_login
 )
 @click.pass_context
 def upload(
-    ctx,
-    product,
-    git_ref,
-    dirname,
-    ci_env,
-    on_travis_push,
-    on_travis_pr,
-    on_travis_api,
-    on_travis_cron,
-    skip_upload,
-):
-    """Upload a new site build to LSST the Docs.
-    """
+    ctx: click.Context,
+    product: str,
+    git_ref: Optional[str],
+    dirname: str,
+    ci_env: str,
+    on_travis_push: bool,
+    on_travis_pr: bool,
+    on_travis_api: bool,
+    on_travis_cron: bool,
+    skip_upload: bool,
+) -> None:
+    """Upload a new site build to LSST the Docs."""
     logger = logging.getLogger(__name__)
 
     if skip_upload:
@@ -159,8 +157,11 @@ def upload(
 
 
 def _should_skip_travis_event(
-    on_travis_push, on_travis_pr, on_travis_api, on_travis_cron
-):
+    on_travis_push: bool,
+    on_travis_pr: bool,
+    on_travis_api: bool,
+    on_travis_cron: bool,
+) -> bool:
     """Detect if the upload should be skipped based on the
     ``TRAVIS_EVENT_TYPE`` environment variable.
 
@@ -193,7 +194,9 @@ def _should_skip_travis_event(
         return False
 
 
-def _get_git_refs(ci_env, user_git_ref):
+def _get_git_refs(
+    ci_env: Optional[str], user_git_ref: Optional[str]
+) -> List[str]:
     if ci_env == "travis" and user_git_ref is None:
         # Get git refs from Travis environment
         git_refs = _get_travis_git_refs()
@@ -208,9 +211,9 @@ def _get_git_refs(ci_env, user_git_ref):
     return git_refs
 
 
-def _get_travis_git_refs():
-    git_refs = [os.getenv("TRAVIS_BRANCH")]
-    if git_refs[0] is None:
+def _get_travis_git_refs() -> List[str]:
+    git_refs = [os.getenv("TRAVIS_BRANCH", "")]
+    if git_refs[0] == "":
         raise click.UsageError(
             "Using --travis but the TRAVIS_BRANCH environment variable is "
             "not detected."
@@ -218,9 +221,9 @@ def _get_travis_git_refs():
     return git_refs
 
 
-def _get_gh_actions_git_refs():
-    github_ref = os.getenv("GITHUB_REF")
-    if github_ref is None:
+def _get_gh_actions_git_refs() -> List[str]:
+    github_ref = os.getenv("GITHUB_REF", "")
+    if github_ref == "":
         raise click.UsageError(
             "Using --gh but the GITHUB_REF environment variable is "
             "not detected."

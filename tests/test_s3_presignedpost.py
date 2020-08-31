@@ -1,10 +1,12 @@
-"""Tests for the ``ltdconveyor.s3.presignedpost`` module.
-"""
+"""Tests for the ``ltdconveyor.s3.presignedpost`` module."""
+
+from __future__ import annotations
 
 import cgi
 import sys
 from io import BytesIO
-from pathlib import Path, PurePosixPath
+from pathlib import Path, PosixPath
+from typing import TYPE_CHECKING, Dict
 from unittest.mock import call
 
 import pytest
@@ -20,6 +22,9 @@ from ltdconveyor.s3.presignedpost import (
     upload_file,
 )
 
+if TYPE_CHECKING:
+    from unittest.mock import Mock
+
 
 @pytest.mark.parametrize(
     "directory,basedir,expected",
@@ -30,14 +35,14 @@ from ltdconveyor.s3.presignedpost import (
         ("/home/project/", "/home/project/", "/"),
     ],
 )
-def test_relative_dirname(directory, basedir, expected):
-    directory = PurePosixPath(directory)
-    basedir = PurePosixPath(basedir)
-    result = format_relative_dirname(directory, basedir)
+def test_relative_dirname(directory: str, basedir: str, expected: str) -> None:
+    _directory = PosixPath(directory)
+    _basedir = PosixPath(basedir)
+    result = format_relative_dirname(_directory, _basedir)
     assert result == expected
 
 
-def test_prescan_directory():
+def test_prescan_directory() -> None:
     """Test the prescan_directory function using a test directory in
     ``tests/data/test-site/``
     """
@@ -55,7 +60,7 @@ def test_prescan_directory():
 @pytest.mark.xfail(
     reason="assert_has_calls fails for unknown reason on Travis"
 )
-def test_upload_dir(mocker):
+def test_upload_dir(mocker: Mock) -> None:
     mock_upload_file = mocker.patch("ltdconveyor.s3.presignedpost.upload_file")
 
     post_urls = {
@@ -106,12 +111,12 @@ def test_upload_dir(mocker):
     mock_upload_file.assert_has_calls(upload_file_calls)
 
 
-def test_upload_dir_bad_posturls(mocker):
+def test_upload_dir_bad_posturls(mocker: Mock) -> None:
     """Test upload_dir when post_urls do not include the necessary directory.
     """
     mocker.patch("ltdconveyor.s3.presignedpost.upload_file")
 
-    post_urls = {}
+    post_urls: Dict[str, str] = {}
     base_dir = Path(__file__).parent / "data/test-site"
 
     with pytest.raises(ConveyorError):
@@ -119,7 +124,7 @@ def test_upload_dir_bad_posturls(mocker):
 
 
 @responses.activate
-def test_upload_file():
+def test_upload_file() -> None:
     local_path = Path(__file__).parent / "data/test-site/index.html"
     post_url = "https://example.com"
     post_fields = {"key": "bucket/base/${filename}"}
@@ -149,7 +154,7 @@ def test_upload_file():
 
 
 @responses.activate
-def test_upload_file_failed():
+def test_upload_file_failed() -> None:
     local_path = Path(__file__).parent / "data/test-site/index.html"
     post_url = "https://example.com"
     post_fields = {"key": "bucket/base/${filename}"}
@@ -163,7 +168,7 @@ def test_upload_file_failed():
 
 
 @responses.activate
-def test_upload_directory_objects():
+def test_upload_directory_objects() -> None:
     post_urls = {
         "/": {"url": "https://example.com", "fields": {"key": "bucket/base"}},
         "a/": {

@@ -1,22 +1,22 @@
-"""Delete an S3 directory.
-"""
-
-__all__ = ("delete_dir",)
+"""Delete an S3 directory."""
 
 import logging
+from typing import Any, Dict, Optional
 
 import boto3
 
-from .exceptions import S3Error
+from ltdconveyor.s3.exceptions import S3Error
+
+__all__ = ["delete_dir"]
 
 
 def delete_dir(
-    bucket_name,
-    root_path,
-    aws_access_key_id=None,
-    aws_secret_access_key=None,
-    aws_profile=None,
-):
+    bucket_name: str,
+    root_path: str,
+    aws_access_key_id: Optional[str] = None,
+    aws_secret_access_key: Optional[str] = None,
+    aws_profile: Optional[str] = None,
+) -> None:
     """Delete all objects in the S3 bucket named ``bucket_name`` that are
     found in the ``root_path`` directory.
 
@@ -57,7 +57,7 @@ def delete_dir(
     paginator = client.get_paginator("list_objects_v2")
     pages = paginator.paginate(Bucket=bucket_name, Prefix=root_path)
 
-    keys = dict(Objects=[])
+    keys: Dict[str, Any] = dict(Objects=[])
     for item in pages.search("Contents"):
         try:
             keys["Objects"].append({"Key": item["Key"]})

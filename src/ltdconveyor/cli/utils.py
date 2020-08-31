@@ -1,15 +1,16 @@
-"""Helpers for the CLI (not click commands).
-"""
+"""Helpers for the CLI (not click commands)."""
 
 import logging
 import sys
 
 import click
 
-from ..keeper.login import get_keeper_token
+from ltdconveyor.keeper.login import get_keeper_token
+
+__all__ = ["ensure_login"]
 
 
-def ensure_login(ctx):
+def ensure_login(ctx: click.Context) -> None:
     """Ensure a token is in the Click context object or authenticate and obtain
     the token from LTD Keeper.
 

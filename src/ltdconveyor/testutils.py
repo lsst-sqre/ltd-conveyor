@@ -1,15 +1,20 @@
-"""Test utilities available to test modules.
-"""
-
-__all__ = ("upload_test_files",)
+"""Test utilities available to test modules."""
 
 import os
 from tempfile import TemporaryDirectory
+from typing import Any, Sequence
+
+__all__ = ["upload_test_files"]
 
 
 def upload_test_files(
-    file_paths, bucket, bucket_root, surrogate_key, cache_control, content_type
-):
+    file_paths: Sequence[str],
+    bucket: Any,
+    bucket_root: str,
+    surrogate_key: str,
+    cache_control: str,
+    content_type: str,
+) -> None:
     r"""Create and upload files to S3 as specified by their paths alone.
 
     This is useful for specifying a filesystem tree, and seeing if Conveyor's

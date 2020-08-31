@@ -3,16 +3,16 @@
 See https://docs.fastly.com/api for background.
 """
 
-__all__ = ("purge_key", "FastlyError")
-
 import logging
 
 import requests
 
-from .exceptions import ConveyorError
+from ltdconveyor.exceptions import ConveyorError
+
+__all__ = ["purge_key", "FastlyError"]
 
 
-def purge_key(surrogate_key, service_id, api_key):
+def purge_key(surrogate_key: str, service_id: str, api_key: str) -> None:
     """Instant purge URLs with a given surrogate key from the Fastly caches.
 
     Parameters
@@ -55,5 +55,4 @@ def purge_key(surrogate_key, service_id, api_key):
 
 
 class FastlyError(ConveyorError):
-    """Error related to Fastly API usage.
-    """
+    """Error related to Fastly API usage."""

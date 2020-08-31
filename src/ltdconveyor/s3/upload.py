@@ -1,36 +1,36 @@
-"""S3 upload/sync utilities.
-"""
+"""S3 upload/sync utilities."""
 
-__all__ = (
+import logging
+import mimetypes
+import os
+from typing import Any, Dict, List, Optional, Union
+
+import boto3
+
+from ltdconveyor.s3.exceptions import S3Error
+
+__all__ = [
     "upload_dir",
     "upload_file",
     "upload_object",
     "create_dir_redirect_object",
     "ObjectManager",
-)
-
-import logging
-import mimetypes
-import os
-
-import boto3
-
-from .exceptions import S3Error
+]
 
 
 def upload_dir(
-    bucket_name,
-    path_prefix,
-    source_dir,
-    upload_dir_redirect_objects=True,
-    surrogate_key=None,
-    surrogate_control=None,
-    cache_control=None,
-    acl=None,
-    aws_access_key_id=None,
-    aws_secret_access_key=None,
-    aws_profile=None,
-):
+    bucket_name: str,
+    path_prefix: str,
+    source_dir: str,
+    upload_dir_redirect_objects: bool = True,
+    surrogate_key: Optional[str] = None,
+    surrogate_control: Optional[str] = None,
+    cache_control: Optional[str] = None,
+    acl: Optional[str] = None,
+    aws_access_key_id: Optional[str] = None,
+    aws_secret_access_key: Optional[str] = None,
+    aws_profile: Optional[str] = None,
+) -> None:
     """Upload a directory of files to S3.
 
     This function places the contents of the Sphinx HTML build directory
@@ -185,13 +185,13 @@ def upload_dir(
 
 
 def upload_file(
-    local_path,
-    bucket_path,
-    bucket,
-    metadata=None,
-    acl=None,
-    cache_control=None,
-):
+    local_path: str,
+    bucket_path: str,
+    bucket: Any,
+    metadata: Optional[Dict[str, str]] = None,
+    acl: Optional[str] = None,
+    cache_control: Optional[str] = None,
+) -> None:
     """Upload a file to the S3 bucket.
 
     This function uses the mimetypes module to guess and then set the
@@ -218,7 +218,7 @@ def upload_file(
     """
     logger = logging.getLogger(__name__)
 
-    extra_args = {}
+    extra_args: Dict[str, Any] = {}
     if acl is not None:
         extra_args["ACL"] = acl
     if metadata is not None and len(metadata) > 0:  # avoid empty Metadata
@@ -241,14 +241,14 @@ def upload_file(
 
 
 def upload_object(
-    bucket_path,
-    bucket,
-    content="",
-    metadata=None,
-    acl=None,
-    cache_control=None,
-    content_type=None,
-):
+    bucket_path: str,
+    bucket: Any,
+    content: Union[str, bytes] = "",
+    metadata: Optional[Dict[str, str]] = None,
+    acl: Optional[str] = None,
+    cache_control: Optional[str] = None,
+    content_type: Optional[str] = None,
+) -> None:
     """Upload an arbitrary object to an S3 bucket.
 
     Parameters
@@ -277,7 +277,7 @@ def upload_object(
     obj = bucket.Object(bucket_path)
 
     # Object.put seems to be sensitive to None-type kwargs, so we filter first
-    args = {}
+    args: Dict[str, Any] = {}
     if metadata is not None and len(metadata) > 0:  # avoid empty Metadata
         args["Metadata"] = metadata
     if acl is not None:
@@ -291,8 +291,12 @@ def upload_object(
 
 
 def create_dir_redirect_object(
-    bucket_dir_path, bucket, metadata=None, acl=None, cache_control=None
-):
+    bucket_dir_path: str,
+    bucket: Any,
+    metadata: Optional[Dict[str, str]] = None,
+    acl: Optional[str] = None,
+    cache_control: Optional[str] = None,
+) -> None:
     """Create an S3 object representing a directory that's designed to
     redirect a browser (via Fastly) to the ``index.html`` contained inside
     that directory.
@@ -336,7 +340,7 @@ def create_dir_redirect_object(
     )
 
 
-class ObjectManager(object):
+class ObjectManager:
     """Manage objects existing in a bucket under a specific ``bucket_root``.
 
     The ObjectManager maintains information about objects that exist in the
@@ -353,7 +357,12 @@ class ObjectManager(object):
         documentation is stored.
     """
 
-    def __init__(self, session, bucket_name, bucket_root):
+    def __init__(
+        self,
+        session: boto3.session.Session,
+        bucket_name: str,
+        bucket_root: str,
+    ) -> None:
         super().__init__()
         self._logger = logging.getLogger(__name__)
 
@@ -365,7 +374,7 @@ class ObjectManager(object):
         # Strip trailing '/' from bucket_root for comparisons
         self._bucket_root = self._bucket_root.rstrip("/")
 
-    def list_filenames_in_directory(self, dirname):
+    def list_filenames_in_directory(self, dirname: str) -> List[str]:
         """List all file-type object names that exist at the root of this
         bucket directory.
 
@@ -392,7 +401,7 @@ class ObjectManager(object):
                 filenames.append(os.path.relpath(obj.key, start=prefix))
         return filenames
 
-    def list_dirnames_in_directory(self, dirname):
+    def list_dirnames_in_directory(self, dirname: str) -> List[str]:
         """List all names of directories that exist at the root of this
         bucket directory.
 
@@ -445,7 +454,7 @@ class ObjectManager(object):
 
         return dirnames
 
-    def _create_prefix(self, dirname):
+    def _create_prefix(self, dirname: str) -> str:
         """Make an absolute directory path in the bucker for dirname,
         which is is assumed relative to the self._bucket_root prefix directory.
         """
@@ -457,7 +466,7 @@ class ObjectManager(object):
         prefix = prefix.rstrip("/")
         return prefix
 
-    def delete_file(self, filename):
+    def delete_file(self, filename: str) -> None:
         """Delete a file from the bucket.
 
         Parameters
@@ -470,7 +479,7 @@ class ObjectManager(object):
         for obj in objects:
             obj.delete()
 
-    def delete_directory(self, dirname):
+    def delete_directory(self, dirname: str) -> None:
         """Delete a directory (and contents) from the bucket.
 
         Parameters

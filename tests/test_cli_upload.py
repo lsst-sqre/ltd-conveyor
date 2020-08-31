@@ -1,5 +1,6 @@
-"""Tests for ltdconveyor.cli.upload.
-"""
+"""Tests for ltdconveyor.cli.upload."""
+
+from typing import Any, List, Optional
 
 import click
 import pytest
@@ -26,14 +27,20 @@ from ltdconveyor.cli.upload import (
     ],
 )
 def test_should_skip_travis_event(
-    monkeypatch, event_type, on_push, on_pr, on_api, on_cron, expected
-):
+    monkeypatch: Any,
+    event_type: str,
+    on_push: bool,
+    on_pr: bool,
+    on_api: bool,
+    on_cron: bool,
+    expected: bool,
+) -> None:
     """Test _should_skip_travis_event with different combinations of
     user settings and TRAVIS_EVENT_TYPE variables.
     """
     import os
 
-    def mock_env_var(_):
+    def mock_env_var(_: Any) -> str:
         return event_type
 
     monkeypatch.setattr(os, "getenv", mock_env_var)
@@ -42,35 +49,35 @@ def test_should_skip_travis_event(
     )
 
 
-def test_get_travis_git_refs(monkeypatch):
+def test_get_travis_git_refs(monkeypatch: Any) -> None:
     import os
 
-    monkeypatch.setattr(os, "getenv", lambda _: "my_branch")
+    monkeypatch.setattr(os, "getenv", lambda *args: "my_branch")
 
     assert _get_travis_git_refs() == ["my_branch"]
 
 
-def test_get_travis_git_refs_no_env_var(monkeypatch):
+def test_get_travis_git_refs_no_env_var(monkeypatch: Any) -> None:
     import os
 
-    monkeypatch.setattr(os, "getenv", lambda _: None)
+    monkeypatch.setattr(os, "getenv", lambda *args: "")
 
     with pytest.raises(click.UsageError):
         _get_travis_git_refs()
 
 
-def test_get_gh_actions_git_refs(monkeypatch):
+def test_get_gh_actions_git_refs(monkeypatch: Any) -> None:
     import os
 
-    monkeypatch.setattr(os, "getenv", lambda _: "refs/heads/my_branch")
+    monkeypatch.setattr(os, "getenv", lambda *args: "refs/heads/my_branch")
 
     assert _get_gh_actions_git_refs() == ["my_branch"]
 
 
-def test_get_gh_actions_git_refs_no_env_var(monkeypatch):
+def test_get_gh_actions_git_refs_no_env_var(monkeypatch: Any) -> None:
     import os
 
-    monkeypatch.setattr(os, "getenv", lambda _: None)
+    monkeypatch.setattr(os, "getenv", lambda *args: "")
 
     with pytest.raises(click.UsageError):
         _get_gh_actions_git_refs()
@@ -96,9 +103,15 @@ def test_get_gh_actions_git_refs_no_env_var(monkeypatch):
         (None, None, "a b   c", ["a", "b", "c"]),
     ],
 )
-def test_get_git_refs(monkeypatch, env_var, ci_env, user_git_ref, expected):
+def test_get_git_refs(
+    monkeypatch: Any,
+    env_var: Optional[str],
+    ci_env: Optional[str],
+    user_git_ref: Optional[str],
+    expected: List[str],
+) -> None:
     import os
 
-    monkeypatch.setattr(os, "getenv", lambda _: env_var)
+    monkeypatch.setattr(os, "getenv", lambda *args: env_var)
 
     assert _get_git_refs(ci_env, user_git_ref) == expected

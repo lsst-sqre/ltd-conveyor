@@ -18,14 +18,20 @@ Note that this test will create a random uuid4) directory at the root of
 it.
 """
 
+from __future__ import annotations
+
 import os
 import uuid
+from typing import TYPE_CHECKING
 
 import boto3
 import pytest
 
 from ltdconveyor.s3 import copy_dir, delete_dir
 from ltdconveyor.testutils import upload_test_files
+
+if TYPE_CHECKING:
+    from _pytest.fixtures import FixtureRequest
 
 
 @pytest.mark.skipif(
@@ -36,23 +42,27 @@ from ltdconveyor.testutils import upload_test_files
     "LTD_TEST_AWS_SECRET and "
     "LTD_TEST_BUCKET",
 )
-def test_copy_directory(request):
+def test_copy_directory(request: FixtureRequest) -> None:
+    test_bucket = os.getenv("LTD_TEST_BUCKET", "")
+    aws_access_key_id = os.getenv("LTD_TEST_AWS_ID", "")
+    aws_secret_access_key = os.getenv("LTD_TEST_AWS_SECRET", "")
+
     session = boto3.session.Session(
-        aws_access_key_id=os.getenv("LTD_TEST_AWS_ID"),
-        aws_secret_access_key=os.getenv("LTD_TEST_AWS_SECRET"),
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
     )
     s3 = session.resource("s3")
     bucket = s3.Bucket(os.getenv("LTD_TEST_BUCKET"))
 
     bucket_root = str(uuid.uuid4()) + "/"
 
-    def cleanup():
+    def cleanup() -> None:
         print("Cleaning up the bucket")
         delete_dir(
-            os.getenv("LTD_TEST_BUCKET"),
+            test_bucket,
             bucket_root,
-            aws_access_key_id=os.getenv("LTD_TEST_AWS_ID"),
-            aws_secret_access_key=os.getenv("LTD_TEST_AWS_SECRET"),
+            aws_access_key_id=aws_access_key_id,
+            aws_secret_access_key=aws_secret_access_key,
         )
 
     request.addfinalizer(cleanup)
@@ -80,11 +90,11 @@ def test_copy_directory(request):
 
     # copy files
     copy_dir(
-        bucket_name=os.getenv("LTD_TEST_BUCKET"),
+        test_bucket,
         src_path=bucket_root + "b/",
         dest_path=bucket_root + "a/",
-        aws_access_key_id=os.getenv("LTD_TEST_AWS_ID"),
-        aws_secret_access_key=os.getenv("LTD_TEST_AWS_SECRET"),
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key,
         surrogate_key="new-key",
         surrogate_control="max-age=31536000",
         cache_control="no-cache",
@@ -95,9 +105,7 @@ def test_copy_directory(request):
         bucket_path = os.path.relpath(obj.key, start=bucket_root + "a/")
         assert bucket_path in new_paths
         # ensure correct metadata
-        head = s3.meta.client.head_object(
-            Bucket=os.getenv("LTD_TEST_BUCKET"), Key=obj.key
-        )
+        head = s3.meta.client.head_object(Bucket=test_bucket, Key=obj.key)
         assert head["CacheControl"] == "no-cache"
         assert head["ContentType"] == "text/plain"
         assert head["Metadata"]["surrogate-key"] == "new-key"
@@ -110,7 +118,7 @@ def test_copy_directory(request):
     assert os.path.join(bucket_root, "a") in bucket_paths
 
 
-def test_copy_dir_src_in_dest():
+def test_copy_dir_src_in_dest() -> None:
     """Test that copy_directory fails raises a RuntimeError if source in
     destination.
     """
@@ -124,7 +132,7 @@ def test_copy_dir_src_in_dest():
         )
 
 
-def test_copy_dir_dest_in_src():
+def test_copy_dir_dest_in_src() -> None:
     """Test that copy_directory fails raises a RuntimeError if destination
     is part of the source.
     """

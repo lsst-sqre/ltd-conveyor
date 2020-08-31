@@ -1,16 +1,15 @@
-"""Login functionality for the LTD Keeper API.
-"""
-
-__all__ = ("get_keeper_token",)
+"""Login functionality for the LTD Keeper API."""
 
 from urllib.parse import urljoin
 
 import requests
 
-from .exceptions import KeeperError
+from ltdconveyor.keeper.exceptions import KeeperError
+
+__all__ = ["get_keeper_token"]
 
 
-def get_keeper_token(host, username, password):
+def get_keeper_token(host: str, username: str, password: str) -> str:
     """Get a temporary auth token from LTD Keeper.
 
     Parameters
