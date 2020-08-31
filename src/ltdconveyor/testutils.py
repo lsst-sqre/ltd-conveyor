@@ -27,7 +27,7 @@ def upload_test_files(
 
         .. code-block:: py
 
-           ['a.txt', 'b/c.txt', 'b/d/e.txt']
+           ["a.txt", "b/c.txt", "b/d/e.txt"]
     bucket : `S3.Bucket`
         A boto3 bucket built from a ``boto3.session.Session``\ 's ``resource``
         method. Test files will be uploaded to this bucket.
