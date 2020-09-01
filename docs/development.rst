@@ -10,13 +10,13 @@ Then install LTD Conveyor with development dependencies:
 
 .. code-block:: bash
 
-   pip install -e ".[dev]"
+   make init
 
 You can run tests with:
 
 .. code-block:: bash
 
-   pytest
+   tox
 
 Releases
 ========

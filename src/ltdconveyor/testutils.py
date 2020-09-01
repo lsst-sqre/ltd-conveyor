@@ -1,14 +1,20 @@
-"""Test utilities available to test modules.
-"""
-
-__all__ = ('upload_test_files',)
+"""Test utilities available to test modules."""
 
 import os
 from tempfile import TemporaryDirectory
+from typing import Any, Sequence
+
+__all__ = ["upload_test_files"]
 
 
-def upload_test_files(file_paths, bucket, bucket_root,
-                      surrogate_key, cache_control, content_type):
+def upload_test_files(
+    file_paths: Sequence[str],
+    bucket: Any,
+    bucket_root: str,
+    surrogate_key: str,
+    cache_control: str,
+    content_type: str,
+) -> None:
     r"""Create and upload files to S3 as specified by their paths alone.
 
     This is useful for specifying a filesystem tree, and seeing if Conveyor's
@@ -21,7 +27,7 @@ def upload_test_files(file_paths, bucket, bucket_root,
 
         .. code-block:: py
 
-           ['a.txt', 'b/c.txt', 'b/d/e.txt']
+           ["a.txt", "b/c.txt", "b/d/e.txt"]
     bucket : `S3.Bucket`
         A boto3 bucket built from a ``boto3.session.Session``\ 's ``resource``
         method. Test files will be uploaded to this bucket.
@@ -39,12 +45,13 @@ def upload_test_files(file_paths, bucket, bucket_root,
             full_path = os.path.join(temp_dir, p)
             full_dir = os.path.dirname(full_path)
             os.makedirs(full_dir, exist_ok=True)
-            with open(full_path, 'w') as f:
-                f.write('content')
+            with open(full_path, "w") as f:
+                f.write("content")
 
             extra_args = {
-                'Metadata': {'surrogate-key': surrogate_key},
-                'ContentType': content_type,
-                'CacheControl': cache_control}
+                "Metadata": {"surrogate-key": surrogate_key},
+                "ContentType": content_type,
+                "CacheControl": cache_control,
+            }
             obj = bucket.Object(bucket_root + p)
             obj.upload_file(full_path, ExtraArgs=extra_args)

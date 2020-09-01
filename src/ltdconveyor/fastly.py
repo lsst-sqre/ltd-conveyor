@@ -3,15 +3,16 @@
 See https://docs.fastly.com/api for background.
 """
 
-__all__ = ('purge_key', 'FastlyError')
-
 import logging
+
 import requests
 
-from .exceptions import ConveyorError
+from ltdconveyor.exceptions import ConveyorError
+
+__all__ = ["purge_key", "FastlyError"]
 
 
-def purge_key(surrogate_key, service_id, api_key):
+def purge_key(surrogate_key: str, service_id: str, api_key: str) -> None:
     """Instant purge URLs with a given surrogate key from the Fastly caches.
 
     Parameters
@@ -40,18 +41,18 @@ def purge_key(surrogate_key, service_id, api_key):
     """
     logger = logging.getLogger(__name__)
 
-    api_root = 'https://api.fastly.com'
-    path = '/service/{service}/purge/{surrogate_key}'.format(
-        service=service_id,
-        surrogate_key=surrogate_key)
-    logger.info('Fastly purge {0}'.format(path))
-    r = requests.post(api_root + path,
-                      headers={'Fastly-Key': api_key,
-                               'Accept': 'application/json'})
+    api_root = "https://api.fastly.com"
+    path = "/service/{service}/purge/{surrogate_key}".format(
+        service=service_id, surrogate_key=surrogate_key
+    )
+    logger.info("Fastly purge {0}".format(path))
+    r = requests.post(
+        api_root + path,
+        headers={"Fastly-Key": api_key, "Accept": "application/json"},
+    )
     if r.status_code != 200:
         raise FastlyError(r.json)
 
 
 class FastlyError(ConveyorError):
-    """Error related to Fastly API usage.
-    """
+    """Error related to Fastly API usage."""

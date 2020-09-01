@@ -1,0 +1,56 @@
+# This workflow runs on a daily basis and ensures that LTD Conveyor is
+# available with the latest versions of its dependencies.
+
+name: Weekly CI
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python:
+          - 3.7
+          - 3.8
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install tox
+        run: pip install tox
+
+      - name: Run tox
+        env:
+          LTD_TEST_AWS_ID: ${{ secrets.LTD_TEST_AWS_ID }}
+          LTD_TEST_AWS_SECRET: ${{ secrets.LTD_TEST_AWS_SECRET }}
+          LTD_TEST_BUCKET: ${{ secrets.LTD_TEST_BUCKET }}
+        run: tox -e py,lint,typing  # run tox using Python in path
+
+  docs:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      - name: Install tox and LTD Conveyor (itself!)
+        run: |
+          pip install tox
+          pip install .
+
+      - name: Run tox
+        run: tox -e docs

@@ -1,4 +1,4 @@
-__all__ = ('S3Error',)
+__all__ = ("S3Error",)
 
 from ..exceptions import ConveyorError
 

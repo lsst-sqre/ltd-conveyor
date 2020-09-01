@@ -1,14 +1,18 @@
-"""S3 utilities.
-"""
+"""S3 utilities."""
 
-__all__ = ('open_bucket',)
+from typing import Any, Optional
 
 import boto3
 
+__all__ = ["open_bucket"]
 
-def open_bucket(bucket_name,
-                aws_access_key_id=None, aws_secret_access_key=None,
-                aws_profile=None):
+
+def open_bucket(
+    bucket_name: str,
+    aws_access_key_id: Optional[str] = None,
+    aws_secret_access_key: Optional[str] = None,
+    aws_profile: Optional[str] = None,
+) -> Any:
     """Open an S3 Bucket resource.
 
     Parameters
@@ -33,7 +37,8 @@ def open_bucket(bucket_name,
     session = boto3.session.Session(
         profile_name=aws_profile,
         aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key)
-    s3 = session.resource('s3')
+        aws_secret_access_key=aws_secret_access_key,
+    )
+    s3 = session.resource("s3")
     bucket = s3.Bucket(bucket_name)
     return bucket

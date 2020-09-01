@@ -2,6 +2,32 @@
 Change log
 ##########
 
+0.7.0 (2020-09-01)
+==================
+
+This release focuses on infrastructure improvements, and should not have a significant impact on users.
+
+Infrastructure
+--------------
+
+- This tool is officially tested and supported on Python 3.7 and 3.8.
+  Python 3.6 is no longer officially supported.
+
+- Removed pins on third-party dependencies, including boto3, requests, uritemplate, and click.
+  In doing so, LTD Conveyor is easier to integrate into your existing Python environment.
+
+- We have migrated from Travis CI to GitHub Actions for testing, linting, documentation builds and deployment, and deployments to PyPI.
+  In addition to on-demand testing, GitHub Actions tests the package on a daily basis to ensure compatibility with third-party dependencies.
+
+- Internally, we use tox for running tests, linters, and to build documentation.
+  tox makes it possible for local test runs to use the same set up as CI.
+
+- The codebase is now automatically formatted with black and isort.
+  By using pre-commit, we ensure that formatting is always applied.
+
+- The codebase now has type annotations, which are tested with mypy.
+  Type annotations help ensure that APIs are explicitly defined and correctly used.
+
 0.6.1 (2020-02-23)
 ==================
 
@@ -109,7 +135,7 @@ Changed
   It turns out that not all IAM users with ``PutObject`` permissions also have permissions to set the ``ACL`` for an object.
   We want to make it possible for many lightweight IAM users to upload to restricted sub-directories of the ``lsst-the-docs`` bucket, but it seems hard to make these users ACL grantees too.
   We now seek an alternative:
-  
+
   - The ``lsst-the-docs`` bucket now has a PublicRead *bucket* policy
   - No ACL is set on individual objects.
 
