@@ -7,5 +7,4 @@ from ..exceptions import ConveyorError
 
 
 class KeeperError(ConveyorError):
-    """Error raised because of issues using the LTD Keeper API.
-    """
+    """Error raised because of issues using the LTD Keeper API."""
