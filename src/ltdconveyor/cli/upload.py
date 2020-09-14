@@ -148,7 +148,9 @@ def upload(
     logger.debug("Upload complete for %r", build_resource["self_url"])
 
     # Upload directory objects for redirects
-    upload_directory_objects(post_urls=build_resource["post_dir_urls"],)
+    upload_directory_objects(
+        post_urls=build_resource["post_dir_urls"],
+    )
 
     # Confirm upload
     confirm_build(build_resource["self_url"], ctx.obj["token"])

@@ -5,5 +5,4 @@ __all__ = ("ConveyorError",)
 
 
 class ConveyorError(Exception):
-    """Generic base exception class for ltdconveyor.
-    """
+    """Generic base exception class for ltdconveyor."""

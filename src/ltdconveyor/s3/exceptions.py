@@ -4,5 +4,4 @@ from ..exceptions import ConveyorError
 
 
 class S3Error(ConveyorError):
-    """Error related to AWS S3 usage.
-    """
+    """Error related to AWS S3 usage."""

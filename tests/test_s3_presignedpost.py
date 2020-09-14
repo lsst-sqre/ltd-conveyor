@@ -85,8 +85,7 @@ def test_upload_dir(mocker: Mock) -> None:
 
 
 def test_upload_dir_bad_posturls(mocker: Mock) -> None:
-    """Test upload_dir when post_urls do not include the necessary directory.
-    """
+    """Test upload_dir when post_urls do not include the directory."""
     mocker.patch("ltdconveyor.s3.presignedpost.upload_file")
 
     post_urls: Dict[str, str] = {}
