@@ -9,7 +9,7 @@ repos:
       - id: check-json
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.5.3
+    rev: 5.5.4
     hooks:
       - id: isort
         additional_dependencies:
@@ -28,6 +28,6 @@ repos:
         args: [-l, '79', -t, py38]
 
   - repo: https://gitlab.com/pycqa/flake8
-    rev: 3.8.3
+    rev: 3.8.4
     hooks:
       - id: flake8
