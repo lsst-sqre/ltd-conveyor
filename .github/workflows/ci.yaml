@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0 # full depth for setuptools_scm
 
       - name: Set up Python
-        uses: actions/setup-python@v2.1.4
+        uses: actions/setup-python@v2.2.1
         with:
           python-version: ${{ matrix.python }}
 
@@ -42,7 +42,7 @@ jobs:
           fetch-depth: 0 # full depth for setuptools_scm
 
       - name: Set up Python
-        uses: actions/setup-python@v2.1.4
+        uses: actions/setup-python@v2.2.1
         with:
           python-version: 3.8
 
@@ -73,7 +73,7 @@ jobs:
           fetch-depth: 0 # full depth for setuptools_scm
 
       - name: Set up Python
-        uses: actions/setup-python@v2.1.4
+        uses: actions/setup-python@v2.2.1
         with:
           python-version: 3.8
 
