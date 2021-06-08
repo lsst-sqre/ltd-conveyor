@@ -111,10 +111,13 @@ def test_upload_file() -> None:
     mimetype, options = cgi.parse_header(call.request.headers["Content-Type"])
     assert mimetype == "multipart/form-data"
     pdict = {
-        "boundary": options["boundary"].encode("ascii"),
-        "CONTENT-LENGTH": call.request.headers["Content-Length"],
+        "boundary": bytes(options["boundary"].encode("ascii")),
+        "CONTENT-LENGTH": call.request.headers["Content-Length"].encode(
+            "ascii"
+        ),
     }
-    data = BytesIO(responses.calls[0].request.body)
+    assert isinstance(responses.calls[0].request.body, bytes)
+    data = BytesIO(bytes(responses.calls[0].request.body))
     parsed_body = cgi.parse_multipart(data, pdict)
 
     if sys.version_info[:3] >= (3, 7, 0):
