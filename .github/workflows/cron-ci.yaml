@@ -52,10 +52,9 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install tox and LTD Conveyor (itself!)
+      - name: Install tox and LTD Conveyor
         run: |
           pip install tox
-          pip install .
 
       - name: Run tox
         run: tox -e docs
