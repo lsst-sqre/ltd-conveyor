@@ -45,15 +45,17 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
 
-      - name: Install tox and LTD Conveyor (itself!)
+      - name: Install tox and
         run: |
           pip install tox
-          pip install .
 
       - name: Run tox
         run: tox -e docs
+
+      - name: Install LTD Conveyor for upload
+        run: pip install .
 
       - name: Upload to LSST the Docs
         if: ${{ github.event_name == 'push' }}
@@ -76,7 +78,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
 
       - name: Install dependencies
         run: |
