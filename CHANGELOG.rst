@@ -2,6 +2,11 @@
 Change log
 ##########
 
+0.8.0 (2021-09-15)
+==================
+
+The ``ltd upload`` command now works in pull requests workflows on GitHub Actions.
+
 0.7.0 (2020-09-01)
 ==================
 
