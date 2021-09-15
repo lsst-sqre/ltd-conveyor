@@ -224,7 +224,11 @@ def _get_travis_git_refs() -> List[str]:
 
 
 def _get_gh_actions_git_refs() -> List[str]:
-    github_ref = os.getenv("GITHUB_REF", "")
+    if os.getenv("GITHUB_EVENT_NAME") == "pull_request":
+        ref_env_var = "GITHUB_HEAD_REF"
+    else:
+        ref_env_var = "GITHUB_REF"
+    github_ref = os.getenv(ref_env_var, "")
     if github_ref == "":
         raise click.UsageError(
             "Using --gh but the GITHUB_REF environment variable is "
