@@ -2,6 +2,11 @@
 Change log
 ##########
 
+0.8.1 (2021-09-27)
+==================
+
+Fix parsing of the ``GITHUB_HEAD_REF`` environment variable in GitHub Actions.
+
 0.8.0 (2021-09-15)
 ==================
 
