@@ -10,13 +10,9 @@ from typing import List, Optional
 import click
 
 from ltdconveyor.cli.utils import ensure_login
-from ltdconveyor.keeper.build import confirm_build, register_build
+from ltdconveyor.keeper.v1.build import run_build_upload_v1
+from ltdconveyor.keeper.v2.build import run_build_upload_v2
 from ltdconveyor.keeper.versioning import get_server_version
-from ltdconveyor.s3.presignedpost import (
-    prescan_directory,
-    upload_dir,
-    upload_directory_objects,
-)
 
 __all__ = ["upload"]
 
@@ -121,14 +117,6 @@ def upload(
         click.echo("Set a --project argument")
         sys.exit(1)
 
-    server_version = get_server_version(ctx.obj["keeper_hostname"])
-
-    # Validate --org is present for version 2+ API
-    if server_version >= (2, 0, 0):
-        if org is None:
-            click.echo("Set an --org argument")
-            sys.exit(1)
-
     if skip_upload:
         click.echo("Skipping ltd upload.")
         sys.exit(0)
@@ -154,32 +142,32 @@ def upload(
     # Detect git refs
     git_refs = _get_git_refs(ci_env, git_ref)
 
-    # Prescan directory names. Each directory needs a presigned POST URL.
     base_dir = Path(dirname)
-    dirnames = prescan_directory(base_dir)
 
-    build_resource = register_build(
-        ctx.obj["keeper_hostname"],
-        ctx.obj["token"],
-        project,
-        git_refs,
-        dirnames=dirnames,
-    )
-    logger.debug("Created build resource %r", build_resource)
+    server_version = get_server_version(ctx.obj["keeper_hostname"])
 
-    # Do the upload.
-    upload_dir(post_urls=build_resource["post_prefix_urls"], base_dir=base_dir)
-    logger.debug("Upload complete for %r", build_resource["self_url"])
+    if server_version >= (2, 0, 0):
+        # Validate --org is present for version 2+ API
+        if org is None:
+            click.echo("Set an --org argument")
+            sys.exit(1)
 
-    # Upload directory objects for redirects
-    upload_directory_objects(
-        post_urls=build_resource["post_dir_urls"],
-    )
-
-    # Confirm upload
-    confirm_build(build_resource["self_url"], ctx.obj["token"])
-    logger.info("Build %r complete", build_resource["self_url"])
-    logger.info("Published build URL: %s", build_resource["published_url"])
+        run_build_upload_v2(
+            base_url=ctx.obj["keeper_hostname"],
+            token=ctx.obj["token"],
+            project=project,
+            org=org,
+            git_ref=git_refs[0],
+            base_dir=base_dir,
+        )
+    else:
+        run_build_upload_v1(
+            base_url=ctx.obj["keeper_hostname"],
+            token=ctx.obj["token"],
+            project=project,
+            git_refs=git_refs,
+            base_dir=base_dir,
+        )
 
 
 def _should_skip_travis_event(

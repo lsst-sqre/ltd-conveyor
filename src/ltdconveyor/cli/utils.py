@@ -5,7 +5,7 @@ import sys
 
 import click
 
-from ltdconveyor.keeper.login import get_keeper_token
+from ltdconveyor.keeper.v1.login import get_keeper_token
 
 __all__ = ["ensure_login"]
 
