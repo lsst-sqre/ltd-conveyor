@@ -11,6 +11,7 @@ import click
 
 from ltdconveyor.cli.utils import ensure_login
 from ltdconveyor.keeper.build import confirm_build, register_build
+from ltdconveyor.keeper.versioning import get_server_version
 from ltdconveyor.s3.presignedpost import (
     prescan_directory,
     upload_dir,
@@ -27,6 +28,7 @@ __all__ = ["upload"]
     help="Product name (deprecated, switch to project.",
 )
 @click.option("--project", required=False, help="Project name.")
+@click.option("--org", required=False, help="Organization name.")
 @click.option(
     "--dir",
     "dirname",
@@ -99,6 +101,7 @@ def upload(
     ctx: click.Context,
     product: Optional[str],
     project: Optional[str],
+    org: Optional[str],
     git_ref: Optional[str],
     dirname: str,
     ci_env: str,
@@ -117,6 +120,14 @@ def upload(
     if project is None:
         click.echo("Set a --project argument")
         sys.exit(1)
+
+    server_version = get_server_version(ctx.obj["keeper_hostname"])
+
+    # Validate --org is present for version 2+ API
+    if server_version >= (2, 0, 0):
+        if org is None:
+            click.echo("Set an --org argument")
+            sys.exit(1)
 
     if skip_upload:
         click.echo("Skipping ltd upload.")
