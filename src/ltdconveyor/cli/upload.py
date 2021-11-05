@@ -21,7 +21,12 @@ __all__ = ["upload"]
 
 
 @click.command()
-@click.option("--product", required=True, help="Product name.")
+@click.option(
+    "--product",
+    required=False,
+    help="Product name (deprecated, switch to project.",
+)
+@click.option("--project", required=False, help="Project name.")
 @click.option(
     "--dir",
     "dirname",
@@ -92,7 +97,8 @@ __all__ = ["upload"]
 @click.pass_context
 def upload(
     ctx: click.Context,
-    product: str,
+    product: Optional[str],
+    project: Optional[str],
     git_ref: Optional[str],
     dirname: str,
     ci_env: str,
@@ -104,6 +110,13 @@ def upload(
 ) -> None:
     """Upload a new site build to LSST the Docs."""
     logger = logging.getLogger(__name__)
+
+    # Migrate --product to --project
+    if project is None and product is not None:
+        project = product
+    if project is None:
+        click.echo("Set a --project argument")
+        sys.exit(1)
 
     if skip_upload:
         click.echo("Skipping ltd upload.")
@@ -137,7 +150,7 @@ def upload(
     build_resource = register_build(
         ctx.obj["keeper_hostname"],
         ctx.obj["token"],
-        product,
+        project,
         git_refs,
         dirnames=dirnames,
     )
