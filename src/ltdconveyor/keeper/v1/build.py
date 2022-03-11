@@ -1,15 +1,63 @@
 """Register and confirm new build uploads with the LTD Keeper API."""
 
+from __future__ import annotations
+
 import logging
-from typing import Any, Dict, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Dict, Optional, Sequence
 from urllib.parse import urljoin
 
 import requests
 import uritemplate
 
 from ltdconveyor.keeper.exceptions import KeeperError
+from ltdconveyor.s3.presignedpost import (
+    prescan_directory,
+    upload_dir,
+    upload_directory_objects,
+)
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 __all__ = ["register_build", "confirm_build"]
+
+logger = logging.getLogger(__name__)
+
+
+def run_build_upload_v1(
+    *,
+    base_url: str,
+    token: str,
+    project: str,
+    git_refs: Sequence[str],
+    base_dir: Path,
+) -> None:
+    """Service function for running a build with the v1 LTD Keeper API."""
+    dirnames = prescan_directory(base_dir)
+
+    build_resource = register_build(
+        base_url,
+        token,
+        project,
+        git_refs,
+        dirnames=dirnames,
+    )
+    logger.debug("Created build resource %r", build_resource)
+
+    # Do the upload.
+    upload_dir(post_urls=build_resource["post_prefix_urls"], base_dir=base_dir)
+    logger.debug("Upload complete for %r", build_resource["self_url"])
+
+    # Upload directory objects for redirects
+    upload_directory_objects(
+        post_urls=build_resource["post_dir_urls"],
+    )
+
+    # Confirm upload
+    confirm_build(build_resource["self_url"], token)
+
+    logger.info("Build %r complete", build_resource["self_url"])
+    logger.info("Published build URL: %s", build_resource["published_url"])
 
 
 def register_build(
