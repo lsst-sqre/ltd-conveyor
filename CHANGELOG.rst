@@ -2,6 +2,11 @@
 Change log
 ##########
 
+0.9.0 (unreleased)
+==================
+
+Adds support for LTD Keeper 2.0.
+
 0.8.1 (2021-09-27)
 ==================
 
