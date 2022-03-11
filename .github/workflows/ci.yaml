@@ -1,6 +1,19 @@
 name: Python CI
 
-on: [push, pull_request]
+"on":
+  push:
+    branches-ignore:
+      # These should always correspond to pull requests, so ignore them for
+      # the push trigger and let them be triggered by the pull_request
+      # trigger, avoiding running the workflow twice.  This is a minor
+      # optimization so there's no need to ensure this is comprehensive.
+      - "dependabot/**"
+      - "renovate/**"
+      - "tickets/**"
+      - "u/**"
+    tags:
+      - "*"
+  pull_request: {}
 
 jobs:
   test:
@@ -48,7 +61,7 @@ jobs:
         with:
           python-version: 3.9
 
-      - name: Install tox and
+      - name: Install tox
         run: |
           pip install tox
 
@@ -59,7 +72,7 @@ jobs:
         run: pip install .
 
       - name: Upload to LSST the Docs
-        if: ${{ github.event_name == 'push' }}
+        if: env.LTD_USERNAME != null
         env:
           LTD_USERNAME: ${{ secrets.LTD_USERNAME }}
           LTD_PASSWORD: ${{ secrets.LTD_PASSWORD }}
