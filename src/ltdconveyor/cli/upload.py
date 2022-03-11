@@ -21,10 +21,11 @@ __all__ = ["upload"]
 @click.option(
     "--product",
     required=False,
+    default=None,
     help="Product name (deprecated, switch to project.",
 )
-@click.option("--project", required=False, help="Project name.")
-@click.option("--org", required=False, help="Organization name.")
+@click.option("--project", required=False, default=None, help="Project name.")
+@click.option("--org", required=False, default=None, help="Organization name.")
 @click.option(
     "--dir",
     "dirname",
