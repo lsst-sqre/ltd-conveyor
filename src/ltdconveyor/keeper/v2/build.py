@@ -104,7 +104,9 @@ def register_build(
     data = {"git_ref": git_ref, "directories": list(dirnames)}
 
     endpoint_url = uritemplate.expand(
-        urljoin(base_url, "/v2/{org}/projects/{p}/builds"), p=project, org=org
+        urljoin(base_url, "/v2/orgs/{org}/projects/{p}/builds"),
+        p=project,
+        org=org,
     )
 
     r = requests.post(
