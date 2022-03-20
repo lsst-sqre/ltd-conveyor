@@ -187,10 +187,11 @@ def upload_file(
     else:
         logger.error(
             "Error uploading %s (code %i) using presigned POST URL "
-            "fields %s",
+            "fields %s\n%s",
             local_path,
             http_response.status_code,
             post_fields,
+            http_response.text,
         )
         raise S3Error
 
