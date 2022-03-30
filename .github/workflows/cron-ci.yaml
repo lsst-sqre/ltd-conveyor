@@ -1,11 +1,11 @@
-# This workflow runs on a daily basis and ensures that LTD Conveyor is
+# This workflow runs regularly and ensures that LTD Conveyor is
 # available with the latest versions of its dependencies.
 
-name: Weekly CI
+name: Scheduled CI
 
 on:
   schedule:
-    - cron: "0 10 * * TUE"
+    - cron: "0 10 * * *"
   workflow_dispatch: {}
 
 jobs:
