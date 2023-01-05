@@ -91,7 +91,10 @@ def format_relative_dirname(directory: Path, base_directory: Path) -> str:
 
 
 def upload_dir(
-    *, post_urls: Dict[str, Any], base_dir: Path, _current_dir: Path = None
+    *,
+    post_urls: Dict[str, Any],
+    base_dir: Path,
+    _current_dir: Optional[Path] = None,
 ) -> None:
     """Upload a local directory of files to S3 for an LSST the Docs build.
 
