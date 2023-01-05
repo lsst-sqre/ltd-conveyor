@@ -4,6 +4,7 @@ import uuid
 
 import pytest
 import responses
+from requests import PreparedRequest
 
 from ltdconveyor.fastly import FastlyError, purge_key
 
@@ -23,9 +24,12 @@ def test_purge_key() -> None:
 
     purge_key(surrogate_key, service_id, api_key)
     assert len(responses.calls) == 1
-    assert responses.calls[0].request.url == url
-    assert responses.calls[0].request.headers["Fastly-Key"] == api_key
-    assert responses.calls[0].request.headers["Accept"] == "application/json"
+    call = responses.calls[0]
+    assert hasattr(call, "request")
+    assert isinstance(call.request, PreparedRequest)
+    assert call.request.url == url
+    assert call.request.headers["Fastly-Key"] == api_key
+    assert call.request.headers["Accept"] == "application/json"
 
 
 @responses.activate
@@ -44,6 +48,9 @@ def test_purge_key_fail() -> None:
     with pytest.raises(FastlyError):
         purge_key(surrogate_key, service_id, api_key)
     assert len(responses.calls) == 1
-    assert responses.calls[0].request.url == url
-    assert responses.calls[0].request.headers["Fastly-Key"] == api_key
-    assert responses.calls[0].request.headers["Accept"] == "application/json"
+    call = responses.calls[0]
+    assert hasattr(call, "request")
+    assert isinstance(call.request, PreparedRequest)
+    assert call.request.url == url
+    assert call.request.headers["Fastly-Key"] == api_key
+    assert call.request.headers["Accept"] == "application/json"

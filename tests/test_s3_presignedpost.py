@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Dict
 
 import pytest
 import responses
+from requests import PreparedRequest
 
 from ltdconveyor.exceptions import ConveyorError
 from ltdconveyor.s3.exceptions import S3Error
@@ -108,6 +109,8 @@ def test_upload_file() -> None:
     )
 
     call = responses.calls[0]
+    assert hasattr(call, "request")
+    assert isinstance(call.request, PreparedRequest)
     mimetype, options = cgi.parse_header(call.request.headers["Content-Type"])
     assert mimetype == "multipart/form-data"
     pdict = {
@@ -116,8 +119,9 @@ def test_upload_file() -> None:
             "ascii"
         ),
     }
-    assert isinstance(responses.calls[0].request.body, bytes)
-    data = BytesIO(bytes(responses.calls[0].request.body))
+    assert hasattr(call.request, "body")
+    assert isinstance(call.request.body, bytes)
+    data = BytesIO(bytes(call.request.body))
     parsed_body = cgi.parse_multipart(data, pdict)
 
     if sys.version_info[:3] >= (3, 7, 0):
