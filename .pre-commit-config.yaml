@@ -9,19 +9,19 @@ repos:
       - id: check-json
 
   - repo: https://github.com/PyCQA/isort
-    rev: 5.11.4
+    rev: 5.12.0
     hooks:
       - id: isort
         additional_dependencies:
           - toml
 
   - repo: https://github.com/psf/black
-    rev: 22.12.0
+    rev: 23.3.0
     hooks:
       - id: black
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: v1.12.1
+    rev: 1.14.0
     hooks:
       - id: blacken-docs
         additional_dependencies: [black==22.3.0]
