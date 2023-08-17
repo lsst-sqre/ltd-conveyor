@@ -25,11 +25,12 @@ import os
 import shutil
 import tempfile
 import uuid
-from typing import TYPE_CHECKING, Any, Dict, List, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Sequence, cast
 
 import boto3
 import pytest
 import requests
+from mypy_boto3_s3.type_defs import DeleteTypeDef
 
 from ltdconveyor.s3 import upload_dir
 
@@ -286,4 +287,6 @@ def _clean_bucket(
     delete_keys: Dict[str, List[Any]] = {"Objects": []}
     delete_keys["Objects"] = key_objects
     # based on http://stackoverflow.com/a/34888103
-    s3.meta.client.delete_objects(Bucket=bucket.name, Delete=delete_keys)
+    s3.meta.client.delete_objects(
+        Bucket=bucket.name, Delete=cast(DeleteTypeDef, delete_keys)
+    )

@@ -1,9 +1,10 @@
 """Delete an S3 directory."""
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, cast
 
 import boto3
+from mypy_boto3_s3.type_defs import DeleteTypeDef
 
 from ltdconveyor.s3.exceptions import S3Error
 
@@ -67,7 +68,9 @@ def delete_dir(
         # the delete_objects method can only take a maximum of 1000 keys
         if len(keys["Objects"]) >= 1000:
             try:
-                client.delete_objects(Bucket=bucket_name, Delete=keys)
+                client.delete_objects(
+                    Bucket=bucket_name, Delete=cast(DeleteTypeDef, keys)
+                )
             except Exception:
                 message = "Error deleting objects from %r" % root_path
                 logger.exception(message)
@@ -77,7 +80,9 @@ def delete_dir(
     # Delete remaining keys
     if len(keys["Objects"]) > 0:
         try:
-            client.delete_objects(Bucket=bucket_name, Delete=keys)
+            client.delete_objects(
+                Bucket=bucket_name, Delete=cast(DeleteTypeDef, keys)
+            )
         except Exception:
             message = "Error deleting objects from %r" % root_path
             logger.exception(message)
