@@ -44,7 +44,7 @@ dev = [
     "types-requests",
     "types-pkg_resources",
     # Documentation
-    "documenteer[pipelines]",
+    "documenteer[guide]",
     "sphinx-click",
 ]
 

@@ -31,12 +31,10 @@ Installation
 
    pip install ltd-conveyor
 
-Documentation
-=============
-
 .. toctree::
+   :hidden:
 
-   cli
-   api
+   CLI <cli>
+   API <api>
    changes
    development
