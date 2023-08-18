@@ -149,9 +149,16 @@ def copy_dir(
         dest_dirname = dest_path.rstrip("/")
         obj = bucket.Object(dest_dirname)
         metadata = {"dir-redirect": "true"}
-        obj.put(
-            Body="",
-            ACL="public-read",
-            Metadata=metadata,
-            CacheControl=cache_control,
-        )
+        if cache_control is not None:
+            obj.put(
+                Body="",
+                ACL="public-read",
+                Metadata=metadata,
+                CacheControl=cache_control,
+            )
+        else:
+            obj.put(
+                Body="",
+                ACL="public-read",
+                Metadata=metadata,
+            )

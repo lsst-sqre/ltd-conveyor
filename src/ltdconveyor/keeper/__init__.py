@@ -1,1 +1,3 @@
-from .exceptions import *
+from .exceptions import KeeperError
+
+__all__ = ["KeeperError"]

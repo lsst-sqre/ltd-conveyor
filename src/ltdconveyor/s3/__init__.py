@@ -9,3 +9,15 @@ from .upload import (
     upload_object,
 )
 from .utils import open_bucket
+
+__all__ = [
+    "copy_dir",
+    "delete_dir",
+    "S3Error",
+    "ObjectManager",
+    "create_dir_redirect_object",
+    "upload_dir",
+    "upload_file",
+    "upload_object",
+    "open_bucket",
+]

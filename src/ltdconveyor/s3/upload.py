@@ -3,9 +3,10 @@
 import logging
 import mimetypes
 import os
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, cast
 
 import boto3
+from mypy_boto3_s3.type_defs import DeleteTypeDef
 
 from ltdconveyor.s3.exceptions import S3Error
 
@@ -133,7 +134,7 @@ def upload_dir(
 
     manager = ObjectManager(session, bucket_name, path_prefix)
 
-    for (rootdir, dirnames, filenames) in os.walk(source_dir):
+    for rootdir, dirnames, filenames in os.walk(source_dir):
         # name of root directory on S3 bucket
         bucket_root = os.path.relpath(rootdir, start=source_dir)
         if bucket_root in (".", "/"):
@@ -507,7 +508,7 @@ class ObjectManager:
         # based on http://stackoverflow.com/a/34888103
         s3 = self._session.resource("s3")
         r = s3.meta.client.delete_objects(
-            Bucket=self._bucket.name, Delete=delete_keys
+            Bucket=self._bucket.name, Delete=cast(DeleteTypeDef, delete_keys)
         )
         self._logger.debug(r)
         if "Errors" in r:

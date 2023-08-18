@@ -52,7 +52,9 @@ def test_delete_dir(request: FixtureRequest) -> None:
         aws_secret_access_key=aws_secret_access_key,
     )
     s3 = session.resource("s3")
-    bucket = s3.Bucket(os.getenv("LTD_TEST_BUCKET"))
+    bucket_name = os.getenv("LTD_TEST_BUCKET")
+    assert bucket_name is not None
+    bucket = s3.Bucket(bucket_name)
 
     bucket_root = str(uuid.uuid4()) + "/"
 
