@@ -31,6 +31,7 @@ dependencies = [
     "uritemplate",
     "click",
     "boto3-stubs[boto3,essential]",
+    "httpx",
 ]
 dynamic = ["version"]
 
