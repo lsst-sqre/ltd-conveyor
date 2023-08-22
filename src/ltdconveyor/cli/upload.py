@@ -8,11 +8,10 @@ from pathlib import Path
 from typing import List, Optional
 
 import click
+import httpx
 
-from ltdconveyor.cli.utils import ensure_login
-from ltdconveyor.keeper.v1.build import run_build_upload_v1
-from ltdconveyor.keeper.v2.build import run_build_upload_v2
-from ltdconveyor.keeper.versioning import get_server_version
+from ..factory import Factory
+from .utils import run_with_asyncio
 
 __all__ = ["upload"]
 
@@ -59,7 +58,8 @@ __all__ = ["upload"]
     "this option or the environment variable $LTD_SKIP_UPLOAD=true.",
 )
 @click.pass_context
-def upload(
+@run_with_asyncio
+async def upload(
     ctx: click.Context,
     product: Optional[str],
     project: Optional[str],
@@ -85,37 +85,23 @@ def upload(
 
     logger.debug("CI environment: %s", ci_env)
 
-    # Authenticate to LTD Keeper host
-    ensure_login(ctx)
-
     # Detect git refs
     git_refs = _get_git_refs(ci_env, git_ref)
-
     base_dir = Path(dirname)
 
-    server_version = get_server_version(ctx.obj["keeper_hostname"])
-
-    if server_version >= (2, 0, 0):
-        # Validate --org is present for version 2+ API
-        if org is None:
-            click.echo("Set an --org argument")
-            sys.exit(1)
-
-        run_build_upload_v2(
-            base_url=ctx.obj["keeper_hostname"],
-            token=ctx.obj["token"],
-            project=project,
-            org=org,
-            git_ref=git_refs[0],
-            base_dir=base_dir,
+    async with httpx.AsyncClient() as http_client:
+        factory = Factory(
+            api_base=ctx.obj["keeper_hostname"],
+            api_username=ctx.obj["username"],
+            api_password=ctx.obj["password"],
+            http_client=http_client,
         )
-    else:
-        run_build_upload_v1(
-            base_url=ctx.obj["keeper_hostname"],
-            token=ctx.obj["token"],
-            project=project,
-            git_refs=git_refs,
+        project_service = factory.get_project_service()
+        await project_service.upload_build(
             base_dir=base_dir,
+            project=project,
+            git_ref=git_refs[0],
+            org=org,
         )
 
 
