@@ -280,7 +280,7 @@ class KeeperClient:
     async def _register_build_v1(
         self, *, project: str, git_ref: str, dirnames: List[str]
     ) -> Any:
-        data = {"git_ref": git_ref, "directories": list(dirnames)}
+        data = {"git_refs": [git_ref], "directories": list(dirnames)}
 
         endpoint_url = uritemplate.expand(
             urljoin(self._base_url, "/products/{p}/builds/"), p=project
