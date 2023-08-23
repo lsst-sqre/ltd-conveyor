@@ -87,7 +87,11 @@ class KeeperClient:
         return r.json()["token"]
 
     async def get(
-        self, *, path: Optional[str] = None, url: Optional[str] = None
+        self,
+        *,
+        path: Optional[str] = None,
+        url: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Any:
         """Send a GET request."""
         if path is not None:
@@ -99,7 +103,9 @@ class KeeperClient:
 
         token = await self.get_token()
 
-        r = await self._http_client.get(endpoint, auth=(token, ""))
+        r = await self._http_client.get(
+            endpoint, auth=(token, ""), headers=headers or {}
+        )
         if r.status_code >= 400:
             raise KeeperError(
                 f"Failed to GET {endpoint}: {r.status_code}\n{r.text}"
@@ -112,6 +118,7 @@ class KeeperClient:
         data: Any,
         path: Optional[str] = None,
         url: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Any:
         """Send a POST request."""
         if path is not None:
@@ -123,7 +130,9 @@ class KeeperClient:
 
         token = await self.get_token()
 
-        r = await self._http_client.post(endpoint, json=data, auth=(token, ""))
+        r = await self._http_client.post(
+            endpoint, json=data, auth=(token, ""), headers=headers or {}
+        )
         if r.status_code >= 400:
             raise KeeperError(
                 f"Failed to POST {endpoint}: {r.status_code}\n{r.text}"
@@ -136,6 +145,7 @@ class KeeperClient:
         data: Any,
         path: Optional[str] = None,
         url: Optional[str] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> Any:
         """Send a PATCH request."""
         if path is not None:
@@ -148,7 +158,7 @@ class KeeperClient:
         token = await self.get_token()
 
         r = await self._http_client.patch(
-            endpoint, json=data, auth=(token, "")
+            endpoint, json=data, auth=(token, ""), headers=headers or {}
         )
         if r.status_code >= 400:
             raise KeeperError(
@@ -231,7 +241,7 @@ class KeeperClient:
         data = {"git_ref": git_ref, "directories": list(dirnames)}
 
         endpoint_url = uritemplate.expand(
-            urljoin(self._base_url, "/v2/orgs/{org}/projects/{p}/builds"),
+            urljoin(self._base_url, "/v2/orgs/{org}/projects/{p}/builds/"),
             p=project,
             org=org,
         )
@@ -273,12 +283,13 @@ class KeeperClient:
         data = {"git_ref": git_ref, "directories": list(dirnames)}
 
         endpoint_url = uritemplate.expand(
-            urljoin(self._base_url, "/products/{p}/builds"), p=project
+            urljoin(self._base_url, "/products/{p}/builds/"), p=project
         )
 
         build_data = await self.post(
             url=endpoint_url,
             data=data,
+            headers={"Accept": "application/vnd.ltdkeeper.v2+json"},
         )
         logger.debug(
             "Registered a build, project=%s:\n%s",

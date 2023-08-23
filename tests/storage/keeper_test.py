@@ -100,9 +100,9 @@ async def test_register_build_v1(respx_mock: respx.Router) -> None:
     respx_mock.get(f"{base_url}/", name="GET /").respond(
         status_code=200, json=load_keeper_response("metadata_v1.json")
     )
-    respx_mock.post(f"{base_url}/products/test-project/builds").respond(
-        status_code=200, json=load_keeper_response("new_build_v1.json")
-    )
+    new_build_endpoint = respx_mock.post(
+        f"{base_url}/products/test-project/builds/", name="POST build"
+    ).respond(status_code=200, json=load_keeper_response("new_build_v1.json"))
 
     async with AsyncClient() as httpx_client:
         client = KeeperClient(
@@ -124,6 +124,11 @@ async def test_register_build_v1(respx_mock: respx.Router) -> None:
             "https://test-project.s3.amazonaws.com/"
         )
 
+        # Ensure we're using the Accept header to enable presigned POST URLs
+        assert new_build_endpoint.calls[0].request.headers["Accept"] == (
+            "application/vnd.ltdkeeper.v2+json"
+        )
+
 
 @pytest.mark.asyncio
 async def test_register_build_v2(respx_mock: respx.Router) -> None:
@@ -140,7 +145,7 @@ async def test_register_build_v2(respx_mock: respx.Router) -> None:
         status_code=200, json=load_keeper_response("metadata_v2.json")
     )
     respx_mock.post(
-        f"{base_url}/v2/orgs/test-org/projects/test-project/builds"
+        f"{base_url}/v2/orgs/test-org/projects/test-project/builds/"
     ).respond(status_code=200, json=load_keeper_response("new_build_v2.json"))
 
     async with AsyncClient() as httpx_client:
