@@ -186,14 +186,11 @@ class ProjectService:
         """Upload a directory object to a presigned POST URL."""
         fields = deepcopy(post_url.fields)
 
-        # Is it a good idea to set a content type for a directory object?
-        # or just continue to use the custom metadata LTD Keeper provides?
-        fields["Content-Type"] = "application/x-directory"
-
         try:
             r = await self._http_client.post(
                 post_url.url,
                 data=fields,
+                files={"file": ("", "")},
             )
             r.raise_for_status()
         except HTTPError as e:
