@@ -10,6 +10,7 @@ from typing import List, Optional
 import click
 import httpx
 
+from ..exceptions import ConveyorError
 from ..factory import Factory
 from .utils import run_with_asyncio
 
@@ -85,24 +86,32 @@ async def upload(
 
     logger.debug("CI environment: %s", ci_env)
 
-    # Detect git refs
-    git_refs = _get_git_refs(ci_env, git_ref)
-    base_dir = Path(dirname)
+    try:
+        # Detect git refs
+        git_refs = _get_git_refs(ci_env, git_ref)
+        base_dir = Path(dirname)
 
-    async with httpx.AsyncClient() as http_client:
-        factory = Factory(
-            api_base=ctx.obj["keeper_hostname"],
-            api_username=ctx.obj["username"],
-            api_password=ctx.obj["password"],
-            http_client=http_client,
-        )
-        project_service = factory.get_project_service()
-        await project_service.upload_build(
-            base_dir=base_dir,
-            project=project,
-            git_ref=git_refs[0],
-            org=org,
-        )
+        async with httpx.AsyncClient() as http_client:
+            factory = Factory(
+                api_base=ctx.obj["keeper_hostname"],
+                api_username=ctx.obj["username"],
+                api_password=ctx.obj["password"],
+                http_client=http_client,
+            )
+            project_service = factory.get_project_service()
+            await project_service.upload_build(
+                base_dir=base_dir,
+                project=project,
+                git_ref=git_refs[0],
+                org=org,
+            )
+        logger.info("Upload complete.")
+    except ConveyorError:
+        logger.exception("Upload failed.")
+        sys.exit(1)
+    except Exception:
+        logger.exception("Internal upload failure.")
+        sys.exit(1)
 
 
 def _get_git_refs(

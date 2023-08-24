@@ -9,9 +9,13 @@ from typing import Any, Dict, List, Optional, Tuple
 from urllib.parse import urljoin
 
 import uritemplate
-from httpx import AsyncClient
+from httpx import AsyncClient, HTTPError
 
-from ltdconveyor.keeper.exceptions import KeeperError
+from ltdconveyor.exceptions import (
+    ConveyorError,
+    LtdKeeperHttpError,
+    LtdKeeperParsingError,
+)
 
 version_type = Tuple[int, int, int]
 
@@ -79,9 +83,9 @@ class KeeperClient:
             endpoint, auth=(self._username, self._password)
         )
         if r.status_code != 200:
-            raise KeeperError(
-                f"Could not authenticate to {self._base_url}: "
-                f"error {r.status_code}\n{r.json()}"
+            raise ConveyorError(
+                f"Could not authenticate to {self._base_url} as "
+                f"{self._username}"
             )
 
         return r.json()["token"]
@@ -106,10 +110,7 @@ class KeeperClient:
         r = await self._http_client.get(
             endpoint, auth=(token, ""), headers=headers or {}
         )
-        if r.status_code >= 400:
-            raise KeeperError(
-                f"Failed to GET {endpoint}: {r.status_code}\n{r.text}"
-            )
+        r.raise_for_status()
         return r.json()
 
     async def post(
@@ -133,10 +134,7 @@ class KeeperClient:
         r = await self._http_client.post(
             endpoint, json=data, auth=(token, ""), headers=headers or {}
         )
-        if r.status_code >= 400:
-            raise KeeperError(
-                f"Failed to POST {endpoint}: {r.status_code}\n{r.text}"
-            )
+        r.raise_for_status
         return r.json()
 
     async def patch(
@@ -160,24 +158,28 @@ class KeeperClient:
         r = await self._http_client.patch(
             endpoint, json=data, auth=(token, ""), headers=headers or {}
         )
-        if r.status_code >= 400:
-            raise KeeperError(
-                f"Failed to PATCH {endpoint}: {r.status_code}\n{r.text}"
-            )
+        r.raise_for_status()
         return r.json()
 
     async def get_api_version(self) -> tuple[int, int, int]:
         """Get the API version of the LTD Keeper instance."""
-        data = await self.get(path="/")
+        try:
+            data = await self.get(path="/")
+        except HTTPError as e:
+            raise LtdKeeperHttpError("Could not get server version.", e) from e
 
         try:
             server_version_string = data["data"]["server_version"]
         except KeyError:
-            raise KeeperError("Could not not parse server version.")
+            raise LtdKeeperParsingError(
+                "Could not not parse server version.", data
+            )
 
         m = _version_pattern.match(server_version_string)
         if not m:
-            raise KeeperError("Could not not parse server version.")
+            raise LtdKeeperParsingError(
+                "Could not not parse server version.", data
+            )
 
         return (
             int(m.group(1)),
@@ -246,35 +248,46 @@ class KeeperClient:
             org=org,
         )
 
-        build_data = await self.post(
-            url=endpoint_url,
-            data=data,
-        )
+        try:
+            build_data = await self.post(
+                url=endpoint_url,
+                data=data,
+            )
+        except HTTPError as e:
+            raise LtdKeeperHttpError(
+                f"Failed to register build for org={org} project={project}", e
+            ) from e
         logger.debug(
             "Registered a build, org=%s project=%s:\n%s",
             org,
             project,
             build_data,
         )
-        post_prefix_urls = {
-            dirname: PresignedPostUrl(
-                url=build_data["post_prefix_urls"][dirname]["url"],
-                fields=build_data["post_prefix_urls"][dirname]["fields"],
+
+        try:
+            post_prefix_urls = {
+                dirname: PresignedPostUrl(
+                    url=build_data["post_prefix_urls"][dirname]["url"],
+                    fields=build_data["post_prefix_urls"][dirname]["fields"],
+                )
+                for dirname in dirnames
+            }
+            post_dir_urls = {
+                dirname: PresignedPostUrl(
+                    url=build_data["post_dir_urls"][dirname]["url"],
+                    fields=build_data["post_dir_urls"][dirname]["fields"],
+                )
+                for dirname in dirnames
+            }
+            build_info = BuildInfo(
+                url=build_data["self_url"],
+                post_prefix_urls=post_prefix_urls,
+                post_dir_urls=post_dir_urls,
             )
-            for dirname in dirnames
-        }
-        post_dir_urls = {
-            dirname: PresignedPostUrl(
-                url=build_data["post_dir_urls"][dirname]["url"],
-                fields=build_data["post_dir_urls"][dirname]["fields"],
-            )
-            for dirname in dirnames
-        }
-        build_info = BuildInfo(
-            url=build_data["self_url"],
-            post_prefix_urls=post_prefix_urls,
-            post_dir_urls=post_dir_urls,
-        )
+        except KeyError as e:
+            raise LtdKeeperParsingError(
+                "Could not parse build registration response.", build_data
+            ) from e
         return build_info
 
     async def _register_build_v1(
@@ -286,35 +299,46 @@ class KeeperClient:
             urljoin(self._base_url, "/products/{p}/builds/"), p=project
         )
 
-        build_data = await self.post(
-            url=endpoint_url,
-            data=data,
-            headers={"Accept": "application/vnd.ltdkeeper.v2+json"},
-        )
+        try:
+            build_data = await self.post(
+                url=endpoint_url,
+                data=data,
+                headers={"Accept": "application/vnd.ltdkeeper.v2+json"},
+            )
+        except HTTPError as e:
+            raise LtdKeeperHttpError(
+                f"Failed to register build for project={project}", e
+            ) from e
         logger.debug(
             "Registered a build, project=%s:\n%s",
             project,
             build_data,
         )
-        post_prefix_urls = {
-            dirname: PresignedPostUrl(
-                url=build_data["post_prefix_urls"][dirname]["url"],
-                fields=build_data["post_prefix_urls"][dirname]["fields"],
+
+        try:
+            post_prefix_urls = {
+                dirname: PresignedPostUrl(
+                    url=build_data["post_prefix_urls"][dirname]["url"],
+                    fields=build_data["post_prefix_urls"][dirname]["fields"],
+                )
+                for dirname in dirnames
+            }
+            post_dir_urls = {
+                dirname: PresignedPostUrl(
+                    url=build_data["post_dir_urls"][dirname]["url"],
+                    fields=build_data["post_dir_urls"][dirname]["fields"],
+                )
+                for dirname in dirnames
+            }
+            build_info = BuildInfo(
+                url=build_data["self_url"],
+                post_prefix_urls=post_prefix_urls,
+                post_dir_urls=post_dir_urls,
             )
-            for dirname in dirnames
-        }
-        post_dir_urls = {
-            dirname: PresignedPostUrl(
-                url=build_data["post_dir_urls"][dirname]["url"],
-                fields=build_data["post_dir_urls"][dirname]["fields"],
-            )
-            for dirname in dirnames
-        }
-        build_info = BuildInfo(
-            url=build_data["self_url"],
-            post_prefix_urls=post_prefix_urls,
-            post_dir_urls=post_dir_urls,
-        )
+        except KeyError as e:
+            raise LtdKeeperParsingError(
+                "Could not parse build registration response.", build_data
+            ) from e
         return build_info
 
     async def confirm_build(self, *, build_url: str) -> None:
@@ -325,5 +349,7 @@ class KeeperClient:
                 url=build_url,
                 data=data,
             )
-        except KeeperError as e:
-            raise KeeperError(f"Failed to confirm build at {build_url}") from e
+        except HTTPError as e:
+            raise LtdKeeperHttpError(
+                f"Failed to confirm build at {build_url}", e
+            ) from e
