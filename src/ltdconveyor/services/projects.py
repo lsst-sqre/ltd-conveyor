@@ -8,8 +8,9 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Dict, List, Optional
 
-from httpx import AsyncClient
+from httpx import AsyncClient, HTTPError
 
+from ..exceptions import S3PresignedUploadError
 from ..storage.keeper import KeeperClient, PresignedPostUrl
 
 
@@ -152,11 +153,17 @@ class ProjectService:
             fields["Content-Type"] = "application/octet-stream"
 
         with path.open("rb") as f:
-            await self._http_client.post(
-                post_url.url,
-                data=fields,
-                files={"file": (path.name, f)},
-            )
+            try:
+                r = await self._http_client.post(
+                    post_url.url,
+                    data=fields,
+                    files={"file": (path.name, f)},
+                )
+                r.raise_for_status()
+            except HTTPError as e:
+                raise S3PresignedUploadError(
+                    f"Error uploading {path} to S3", e
+                ) from e
 
     async def _upload_directory_objects(
         self, post_dir_urls: Dict[str, PresignedPostUrl]
@@ -183,7 +190,13 @@ class ProjectService:
         # or just continue to use the custom metadata LTD Keeper provides?
         fields["Content-Type"] = "application/x-directory"
 
-        await self._http_client.post(
-            post_url.url,
-            data=fields,
-        )
+        try:
+            r = await self._http_client.post(
+                post_url.url,
+                data=fields,
+            )
+            r.raise_for_status()
+        except HTTPError as e:
+            raise S3PresignedUploadError(
+                f"Error uploading directory object {relative_dir} to S3:", e
+            ) from e

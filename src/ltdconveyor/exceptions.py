@@ -46,3 +46,22 @@ class LtdKeeperParsingError(ConveyorError):
             f"Data:\n\n"
             f"{self.data}"
         )
+
+
+class S3PresignedUploadError(ConveyorError):
+    """Error uploading a file to an S3 presigned POST URL."""
+
+    def __init__(self, message: str, error: httpx.HTTPError) -> None:
+        self.message = message
+        self.error = error
+
+    def __str__(self) -> str:
+        if isinstance(self.error, httpx.HTTPStatusError):
+            return (
+                f"{self.message}\n\n"
+                f"Got {self.error.response.status_code} response from "
+                f"{self.error.response.request.method} "
+                f"{self.error.response.url}\n\n"
+            )
+        else:
+            return self.message
