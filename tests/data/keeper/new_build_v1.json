@@ -1,0 +1,67 @@
+{
+  "self_url": "https://keeper.example.com/builds/1",
+  "product_url": "https://keeper.example.com/products/test-project",
+  "slug": "1",
+  "date_created": "2021-01-01T00:00:00.000000Z",
+  "date_ended": null,
+  "uploaded": false,
+  "bucket_name": "test-project",
+  "bucket_root_dir": "main",
+  "git_refs": ["main"],
+  "github_requester": null,
+  "published_url": "https://test-project.lsst.io/main",
+  "surrogate_key": "test-project-main",
+  "queue_url": null,
+  "post_prefix_urls": {
+    "/": {
+      "url": "https://test-project.s3.amazonaws.com/",
+      "fields": {
+        "key": "test-project/main/1/",
+        "Content-Type": "application/octet-stream",
+        "x-amz-meta-surrogate-key": "test-project-main"
+      }
+    },
+    "/dir1": {
+      "url": "https://test-project.s3.amazonaws.com/dir1",
+      "fields": {
+        "key": "test-project/main/1/dir1/",
+        "Content-Type": "application/octet-stream",
+        "x-amz-meta-surrogate-key": "test-project-main"
+      }
+    },
+    "/dir2": {
+      "url": "https://test-project.s3.amazonaws.com/dir2",
+      "fields": {
+        "key": "test-project/main/1/dir2/",
+        "Content-Type": "application/octet-stream",
+        "x-amz-meta-surrogate-key": "test-project-main"
+      }
+    }
+  },
+  "post_dir_urls": {
+    "/": {
+      "url": "https://test-project.s3.amazonaws.com/",
+      "fields": {
+        "key": "test-project/main/1/",
+        "Content-Type": "application/octet-stream",
+        "x-amz-meta-surrogate-key": "test-project-main"
+      }
+    },
+    "/dir1": {
+      "url": "https://test-project.s3.amazonaws.com/dir1",
+      "fields": {
+        "key": "test-project/main/1/dir1/",
+        "Content-Type": "application/octet-stream",
+        "x-amz-meta-surrogate-key": "test-project-main"
+      }
+    },
+    "/dir2": {
+      "url": "https://test-project.s3.amazonaws.com/dir2",
+      "fields": {
+        "key": "test-project/main/1/dir2/",
+        "Content-Type": "application/octet-stream",
+        "x-amz-meta-surrogate-key": "test-project-main"
+      }
+    }
+  }
+}

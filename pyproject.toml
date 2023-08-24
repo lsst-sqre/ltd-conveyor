@@ -31,6 +31,7 @@ dependencies = [
     "uritemplate",
     "click",
     "boto3-stubs[boto3,essential]",
+    "httpx",
 ]
 dynamic = ["version"]
 
@@ -38,8 +39,10 @@ dynamic = ["version"]
 dev = [
     # Testing
     "responses",
+    "respx",
     "pytest",
     "pytest-mock",
+    "pytest-asyncio",
     "coverage[toml]",
     "mypy",
     "types-requests",
@@ -70,6 +73,17 @@ build-backend = "setuptools.build_meta"
 # https://setuptools.pypa.io/en/latest/userguide/pyproject_config.html
 where = ["src"]
 include = ["ltdconveyor*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+filterwarnings = [
+    "ignore:pkg_resources is deprecated as an API:DeprecationWarning",
+    "ignore:.*pkg_resources\\.declare_namespace:DeprecationWarning",
+]
+python_files = [
+    "tests/*.py",
+    "tests/*/*.py"
+]
 
 [tool.coverage.run]
 parallel = true

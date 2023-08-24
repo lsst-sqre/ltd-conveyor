@@ -1,0 +1,12 @@
+{
+  "data": {
+    "documentation": "https://ltd-keeper.lsst.io",
+    "message": "LTD Keeper is the API service for managing Rubin docs projects.",
+    "server_version": "2.0.0"
+  },
+  "links": {
+    "products": "https://keeper.example.com/products/",
+    "self": "https://keeper.example.com/",
+    "token": "https://keeper.example.com/token"
+  }
+}
