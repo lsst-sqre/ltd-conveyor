@@ -114,7 +114,29 @@ def register_build(
     )
 
     if r.status_code != 201:
-        raise KeeperError(r.json())
+        r2 = requests.get(
+            uritemplate.expand(urljoin(host, "/products/{p}"), p=product),
+            auth=(keeper_token, ""),
+            headers={"Accept": "application/vnd.ltdkeeper.v2+json"},
+        )
+        if r2.status_code >= 300:
+            raise KeeperError(
+                f"Could not register a new build for the project {product}. "
+                "It's possible that the project is not registered yet. Please "
+                "contact #dm-docs-support on Slack.",
+                r2.status_code,
+                r2.text,
+            )
+
+        raise KeeperError(
+            f"Could not register a new build for the project {product}. "
+            "It's possible that another build is currently underway. Please "
+            "re-run the documentation job in a few minutes. If the problem "
+            "persists, contact #dm-docs-support on Slack.",
+            r.status_code,
+            r.text,
+        )
+
     build_info: Dict[str, Any] = r.json()
     logger.debug("Registered a build for product %s:\n%s", product, build_info)
     return build_info
@@ -142,4 +164,9 @@ def confirm_build(build_url: str, keeper_token: str) -> None:
 
     r = requests.patch(build_url, auth=(keeper_token, ""), json=data)
     if r.status_code != 200:
-        raise KeeperError(r)
+        raise KeeperError(
+            f"Could not confirm build upload for {build_url}. "
+            "Contact #dm-docs-support on Slack",
+            r.status_code,
+            r.text,
+        )

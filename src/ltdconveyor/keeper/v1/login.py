@@ -35,8 +35,6 @@ def get_keeper_token(host: str, username: str, password: str) -> str:
     r = requests.get(token_endpoint, auth=(username, password))
     if r.status_code != 200:
         raise KeeperError(
-            "Could not authenticate to {0}: error {1:d}\n{2}".format(
-                host, r.status_code, r.json()
-            )
+            f"Could not authenticate to {host}", r.status_code, r.text
         )
     return r.json()["token"]
