@@ -117,7 +117,33 @@ def register_build(
     )
 
     if r.status_code != 201:
-        raise KeeperError(r.json())
+        r2 = requests.get(
+            uritemplate.expand(
+                urljoin(base_url, "/v2/orgs/{org}/projects/{p}"),
+                p=project,
+                org=org,
+            ),
+            auth=(keeper_token, ""),
+            headers={"Accept": "application/json"},
+        )
+        if r2.status_code >= 300:
+            raise KeeperError(
+                f"Could not register a new build for the project {project}. "
+                "It's possible that the project is not registered yet. "
+                "Please contact your documentation support team.",
+                r2.status_code,
+                r2.text,
+            )
+
+        raise KeeperError(
+            f"Could not register a new build for the project {project}. "
+            "It's possible that another build is currently underway. Please "
+            "re-run the documentation job in a few minutes. If the problem "
+            "persists, contact your documentation support team",
+            r.status_code,
+            r.text,
+        )
+
     build_info: Dict[str, Any] = r.json()
     logger.debug(
         "Registered a build, org=%s project=%s:\n%s", org, project, build_info
@@ -147,4 +173,9 @@ def confirm_build(*, build_url: str, keeper_token: str) -> None:
 
     r = requests.patch(build_url, auth=(keeper_token, ""), json=data)
     if r.status_code != 202:
-        raise KeeperError(r)
+        raise KeeperError(
+            f"Could not confirm build upload for {build_url}. "
+            "Contact your documentation support team for help.",
+            r.status_code,
+            r.text,
+        )

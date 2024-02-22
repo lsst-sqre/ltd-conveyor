@@ -2,6 +2,16 @@
 
 <!-- scriv-insert-here -->
 
+## 0.8.3 (2024-02-22)
+
+- Improved error reporting from LTD Keeper API responses for common scenarios and direct the user to contact dm-docs-support on the LSSTC Slack.
+
+## 0.8.2 (2024-02-22)
+
+- Removed usage of `pkg_resources` for better compatibility with Python 3.12 environments.
+- Fixed internal typing issues.
+- Updated the GitHub Actions workflows.
+
 ## 0.8.1 (2021-09-27)
 
 - Fix parsing of the `GITHUB_HEAD_REF` environment variable in GitHub Actions.
