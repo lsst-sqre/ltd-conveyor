@@ -20,9 +20,10 @@ jobs:
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Run tests in tox
         uses: lsst-sqre/run-tox@v1
@@ -36,12 +37,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Build docs in tox
         uses: lsst-sqre/run-tox@v1
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           tox-envs: "docs"
           use-cache: false
 
@@ -50,12 +51,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full history for setuptools_scm
 
       - name: Build and publish
         uses: lsst-sqre/build-and-publish-to-pypi@v2
         with:
-          python-version: "3.11"
+          python-version: "3.12"
           upload: false
