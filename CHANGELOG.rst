@@ -2,6 +2,11 @@
 Change log
 ##########
 
+0.8.3 (2024-02-22)
+==================
+
+- Improved error reporting from LTD Keeper API responses for common scenarios and direct the user to contact dm-docs-support on the LSSTC Slack.
+
 0.8.2 (2024-02-22)
 ==================
 
