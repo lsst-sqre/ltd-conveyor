@@ -21,24 +21,24 @@ jobs:
           - "3.12"
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0 # full depth for setuptools_scm
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
 
-      - name: Install tox
-        run: pip install tox
-
       - name: Run tox
+        uses: lsst-sqre/run-tox@v1
+        with:
+          python-version: ${{ matrix.python }}
+          tox-envs: "lint,typing,py"
         env:
           LTD_TEST_AWS_ID: ${{ secrets.LTD_TEST_AWS_ID }}
           LTD_TEST_AWS_SECRET: ${{ secrets.LTD_TEST_AWS_SECRET }}
           LTD_TEST_BUCKET: ${{ secrets.LTD_TEST_BUCKET }}
-        run: tox -e py,lint,typing  # run tox using Python in path
 
   docs:
 
@@ -50,13 +50,12 @@ jobs:
           fetch-depth: 0 # full depth for setuptools_scm
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: "3.9"
 
-      - name: Install tox and LTD Conveyor
-        run: |
-          pip install tox
-
       - name: Run tox
-        run: tox -e docs
+        uses: lsst-sqre/run-tox@v1
+        with:
+          python-version: ${{ matrix.python }}
+          tox-envs: "docs"
