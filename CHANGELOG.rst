@@ -2,6 +2,13 @@
 Change log
 ##########
 
+0.8.2 (2024-02-22)
+==================
+
+- Removed usage of ``pkg_resources`` for better compatibility with Python 3.12 environments.
+- Fixed internal typing issues.
+- Updated the GitHub Actions workflows.
+
 0.8.1 (2021-09-27)
 ==================
 
@@ -10,7 +17,7 @@ Fix parsing of the ``GITHUB_HEAD_REF`` environment variable in GitHub Actions.
 0.8.0 (2021-09-15)
 ==================
 
-The ``ltd upload`` command now works in pull requests workflows on GitHub Actions.
+The ``ltd upload`` command now works in pull request workflows on GitHub Actions.
 
 0.7.0 (2020-09-01)
 ==================

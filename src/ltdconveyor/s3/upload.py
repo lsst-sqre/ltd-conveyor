@@ -133,7 +133,7 @@ def upload_dir(
 
     manager = ObjectManager(session, bucket_name, path_prefix)
 
-    for (rootdir, dirnames, filenames) in os.walk(source_dir):
+    for rootdir, dirnames, filenames in os.walk(source_dir):
         # name of root directory on S3 bucket
         bucket_root = os.path.relpath(rootdir, start=source_dir)
         if bucket_root in (".", "/"):
