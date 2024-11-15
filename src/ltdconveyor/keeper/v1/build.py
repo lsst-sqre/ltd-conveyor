@@ -123,7 +123,7 @@ def register_build(
             raise KeeperError(
                 f"Could not register a new build for the project {product}. "
                 "It's possible that the project is not registered yet. Please "
-                "contact #dm-docs-support on Slack.",
+                "contact #square-docs-support on Slack.",
                 r2.status_code,
                 r2.text,
             )
@@ -132,7 +132,7 @@ def register_build(
             f"Could not register a new build for the project {product}. "
             "It's possible that another build is currently underway. Please "
             "re-run the documentation job in a few minutes. If the problem "
-            "persists, contact #dm-docs-support on Slack.",
+            "persists, contact #square-docs-support on Slack.",
             r.status_code,
             r.text,
         )
@@ -166,7 +166,7 @@ def confirm_build(build_url: str, keeper_token: str) -> None:
     if r.status_code != 200:
         raise KeeperError(
             f"Could not confirm build upload for {build_url}. "
-            "Contact #dm-docs-support on Slack",
+            "Contact #square-docs-support on Slack",
             r.status_code,
             r.text,
         )
