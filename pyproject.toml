@@ -46,7 +46,6 @@ dev = [
     "coverage[toml]",
     "mypy",
     "types-requests",
-    "types-setuptools",
     # Documentation
     "documenteer[guide]",
     "sphinx-click",
@@ -76,10 +75,6 @@ include = ["ltdconveyor*"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "strict"
-filterwarnings = [
-    "ignore:pkg_resources is deprecated as an API:DeprecationWarning",
-    "ignore:.*pkg_resources\\.declare_namespace:DeprecationWarning",
-]
 python_files = [
     "tests/*.py",
     "tests/*/*.py"
