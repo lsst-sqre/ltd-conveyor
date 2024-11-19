@@ -2,6 +2,14 @@
 Change log
 ##########
 
+0.8.4 (2024-11-19)
+==================
+
+Changed
+-------
+
+- Change Slack channel references to refer to channels in the Rubin Slack instance.
+
 0.8.3 (2024-02-22)
 ==================
 
