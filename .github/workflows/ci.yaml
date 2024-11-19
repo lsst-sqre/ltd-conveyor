@@ -31,9 +31,9 @@ jobs:
           python-version: ${{ matrix.python }}
           tox-envs: "lint,typing,py"
         env:
-          LTD_TEST_AWS_ID: ${{ secrets.LTD_TEST_AWS_ID }}
+          LTD_TEST_AWS_ID: ${{ vars.LTD_TEST_AWS_ID }}
           LTD_TEST_AWS_SECRET: ${{ secrets.LTD_TEST_AWS_SECRET }}
-          LTD_TEST_BUCKET: ${{ secrets.LTD_TEST_BUCKET }}
+          LTD_TEST_BUCKET: ${{ vars.LTD_TEST_BUCKET }}
 
   docs:
 
