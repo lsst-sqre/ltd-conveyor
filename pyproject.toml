@@ -46,7 +46,6 @@ dev = [
     "coverage[toml]",
     "mypy",
     "types-requests",
-    "types-setuptools",
     # Documentation
     "documenteer[guide]",
     "sphinx-click",
