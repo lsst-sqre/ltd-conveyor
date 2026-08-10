@@ -3,18 +3,25 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "weekly"
-      day: "thursday"
-      time: "09:00"
-      timezone: America/Toronto
+      interval: "monthly"
+      time: "03:00"
+      timezone: "America/New_York"
+    groups:
+      github-actions:
+        patterns:
+          - "*"
     reviewers:
       - "jonathansick"
   - package-ecosystem: "pip"
     directory: "/"
+    versioning-strategy: "increase-if-necessary"
     schedule:
-      interval: "weekly"
-      day: "thursday"
-      time: "09:00"
-      timezone: America/Toronto
+      interval: "monthly"
+      time: "03:00"
+      timezone: "America/New_York"
+    groups:
+      pip:
+        patterns:
+          - "*"
     reviewers:
       - "jonathansick"
