@@ -17,4 +17,8 @@ extensions = [
 
 [sphinx.intersphinx.projects]
 python = "https://docs.python.org/3/"
-boto3 = "http://boto3.readthedocs.io/en/latest/"
+boto3 = "https://docs.aws.amazon.com/boto3/latest/"
+
+[sphinx.linkcheck]
+# Repository settings pages need a signed-in maintainer to view.
+ignore = ["^https://github.com/lsst-sqre/ltd-conveyor/settings/"]

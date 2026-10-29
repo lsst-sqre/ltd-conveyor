@@ -46,9 +46,6 @@ dev = [
     "coverage[toml]",
     "mypy",
     "types-requests",
-    # Documentation
-    "documenteer[guide]",
-    "sphinx-click",
 ]
 
 [project.urls]
@@ -57,6 +54,12 @@ Source = "https://github.com/lsst-sqre/ltd-conveyor"
 
 [project.scripts]
 ltd = "ltdconveyor.cli.main:main"
+
+[dependency-groups]
+docs = [
+    "documenteer[guide]==2.5.0b4",
+    "sphinx-click",
+]
 
 [build-system]
 requires = [
